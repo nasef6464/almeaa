@@ -13,31 +13,58 @@
 
 3. **Get Connection Strings**
    
-   You'll need TWO connection strings:
+   You'll need TWO connection strings from Neon dashboard:
    
    ### Pooled Connection (for DATABASE_URL)
    ```
    postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
    ```
-   - Used by your application
+   - Used by your application for queries
    - Handles connection pooling automatically
-   - Better for serverless environments
+   - Better for serverless environments (Vercel, etc.)
    
    ### Direct Connection (for DIRECT_URL)
    ```
    postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
    ```
-   - Used by Prisma Migrate
-   - Required for schema migrations
+   - Used by Prisma Migrate for schema changes
+   - Required for running migrations
    - Direct connection to PostgreSQL
 
-4. **Add to .env**
+4. **Generate NEXTAUTH_SECRET**
+   
+   **On Windows (PowerShell):**
+   ```powershell
+   # Generate a secure 32-character secret
+   $bytes = New-Object byte[] 32
+   (New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($bytes)
+   [Convert]::ToBase64String($bytes)
+   ```
+   
+   **On macOS/Linux:**
+   ```bash
+   openssl rand -base64 32
+   ```
+
+5. **Add to .env**
+   
+   ⚠️ **IMPORTANT: Never commit .env to Git!**
+   
+   Open `.env` and paste your values:
    ```env
    DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
    DIRECT_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
+   NEXTAUTH_SECRET="your-generated-secret-from-step-4"
+   NEXTAUTH_URL="http://localhost:3000"
+   NODE_ENV="development"
    ```
 
-5. **Run Migrations**
+6. **Generate Prisma Client**
+   ```bash
+   npm run db:generate
+   ```
+
+7. **Run Migrations**
    ```bash
    npm run db:migrate
    ```

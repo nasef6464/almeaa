@@ -14,50 +14,68 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...\n');
 
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+  // Create super admin user
+  const superAdminPassword = await bcrypt.hash('superadmin123', 10);
+  const superAdmin = await prisma.user.upsert({
+    where: { email: 'superadmin@example.com' },
     update: {},
     create: {
-      email: 'admin@example.com',
-      name: 'Admin User',
-      role: UserRole.ADMIN,
+      email: 'superadmin@example.com',
+      name: 'Super Admin',
+      password: superAdminPassword,
+      role: UserRole.SUPER_ADMIN,
     },
   });
-  console.log('✅ Created admin user:', admin.email);
+  console.log('✅ Created super admin:', superAdmin.email);
 
-  // Create regular user
-  const userPassword = await bcrypt.hash('user123', 10);
-  const user = await prisma.user.upsert({
-    where: { email: 'user@example.com' },
+  // Create school admin user
+  const schoolAdminPassword = await bcrypt.hash('schooladmin123', 10);
+  const schoolAdmin = await prisma.user.upsert({
+    where: { email: 'schooladmin@example.com' },
     update: {},
     create: {
-      email: 'user@example.com',
-      name: 'Regular User',
-      role: UserRole.USER,
+      email: 'schooladmin@example.com',
+      name: 'School Administrator',
+      password: schoolAdminPassword,
+      role: UserRole.SCHOOL_ADMIN,
     },
   });
-  console.log('✅ Created regular user:', user.email);
+  console.log('✅ Created school admin:', schoolAdmin.email);
 
-  // Create moderator user
-  const modPassword = await bcrypt.hash('mod123', 10);
-  const moderator = await prisma.user.upsert({
-    where: { email: 'mod@example.com' },
+  // Create trainer user
+  const trainerPassword = await bcrypt.hash('trainer123', 10);
+  const trainer = await prisma.user.upsert({
+    where: { email: 'trainer@example.com' },
     update: {},
     create: {
-      email: 'mod@example.com',
-      name: 'Moderator User',
-      role: UserRole.MODERATOR,
+      email: 'trainer@example.com',
+      name: 'Training Instructor',
+      password: trainerPassword,
+      role: UserRole.TRAINER,
     },
   });
-  console.log('✅ Created moderator user:', moderator.email);
+  console.log('✅ Created trainer:', trainer.email);
+
+  // Create student user
+  const studentPassword = await bcrypt.hash('student123', 10);
+  const student = await prisma.user.upsert({
+    where: { email: 'student@example.com' },
+    update: {},
+    create: {
+      email: 'student@example.com',
+      name: 'Test Student',
+      password: studentPassword,
+      role: UserRole.STUDENT,
+    },
+  });
+  console.log('✅ Created student:', student.email);
 
   console.log('\n🎉 Database seeded successfully!');
   console.log('\n📝 Test Credentials:');
-  console.log('   Admin:     admin@example.com / admin123');
-  console.log('   User:      user@example.com / user123');
-  console.log('   Moderator: mod@example.com / mod123');
+  console.log('   Super Admin:  superadmin@example.com / superadmin123');
+  console.log('   School Admin: schooladmin@example.com / schooladmin123');
+  console.log('   Trainer:      trainer@example.com / trainer123');
+  console.log('   Student:      student@example.com / student123');
 }
 
 main()

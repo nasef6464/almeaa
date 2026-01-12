@@ -15,9 +15,12 @@ datasource db {
 
 // Enums
 enum UserRole {
-  USER
-  ADMIN
-  MODERATOR
+  SUPER_ADMIN
+  TRAINER
+  STUDENT
+  PARENT
+  SUPERVISOR
+  SCHOOL_ADMIN
 }
 
 // Models
@@ -25,7 +28,8 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
-  role      UserRole @default(USER)
+  password  String?
+  role      UserRole @default(STUDENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
