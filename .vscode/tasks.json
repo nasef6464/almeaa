@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Deploy (commit+push)",
+      "type": "shell",
+      "command": "git add . && git commit -m \"${input:commitMessage}\" && git push",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Quick Deploy",
+      "type": "shell",
+      "command": "git add . && git commit -m \"update: $(Get-Date -Format 'HH:mm')\" && git push",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitMessage",
+      "type": "promptString",
+      "description": "Commit message",
+      "default": "update"
+    }
+  ]
+}
