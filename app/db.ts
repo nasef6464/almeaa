@@ -15,7 +15,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Create the Prisma Client instance
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({});
 
 // In development, save the instance to prevent hot reload issues
 if (process.env.NODE_ENV !== 'production') {
