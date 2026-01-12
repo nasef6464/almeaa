@@ -13,7 +13,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy": "git add . && git commit -m \"update\" && git push",
+    "deploy:msg": "git add . && git commit && git push"
   },
   "dependencies": {
     "@prisma/client": "^7.2.0",
