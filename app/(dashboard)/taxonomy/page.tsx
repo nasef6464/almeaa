@@ -4,21 +4,38 @@ import { prisma } from "@/app/db";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
+type SubjectTree = {
+  id: string;
+  name: string;
+  categories?: Array<{
+    id: string;
+    name: string;
+    sections?: Array<{
+      id: string;
+      name: string;
+      skills?: Array<{
+        id: string;
+        name: string;
+      }>;
+    }>;
+  }>;
+};
+
 // تحويل بيانات Prisma إلى شجرة
-function buildTaxonomyTree(subjects: any[]): TaxonomyNode[] {
-  return subjects.map(subject => ({
+function buildTaxonomyTree(subjects: SubjectTree[]): TaxonomyNode[] {
+  return subjects.map((subject) => ({
     id: subject.id,
     name: subject.name,
     type: "subject" as const,
-    children: subject.categories?.map((category: any) => ({
+    children: subject.categories?.map((category) => ({
       id: category.id,
       name: category.name,
       type: "branch" as const,
-      children: category.sections?.map((section: any) => ({
+      children: category.sections?.map((section) => ({
         id: section.id,
         name: section.name,
         type: "section" as const,
-        children: section.skills?.map((skill: any) => ({
+        children: section.skills?.map((skill) => ({
           id: skill.id,
           name: skill.name,
           type: "skill" as const,

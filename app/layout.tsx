@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 
 const cairo = Cairo({
   variable: "--font-cairo",
@@ -26,7 +27,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body className={`${cairo.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}>
-        {children}
+        <SiteHeader />
+        <main className="min-h-screen">{children}</main>
       </body>
     </html>
   );

@@ -24,6 +24,7 @@ export default async function SaherTestPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">اختبار ساهر الذكي</h1>
             <p className="text-gray-500">اختبار تشخيصي شامل لقياس مستواك الحقيقي</p>
+            <p className="text-sm text-gray-400">جاهز يا {firstName}؟</p>
           </div>
         </div>
       </div>

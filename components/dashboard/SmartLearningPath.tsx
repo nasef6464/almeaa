@@ -23,8 +23,9 @@ interface Props {
 
 // Mock data generator - في المستقبل ممكن نربطه بالـ AI
 const generateMockLearningPath = (skills: SkillGap[]): LearningRecommendation[] => {
-  const weakSkills = skills.filter(s => s.mastery < 70);
-  
+  const weakestSkill = [...skills].sort((a, b) => a.mastery - b.mastery)[0];
+  const skillLabel = weakestSkill ? weakestSkill.skill : 'مهاراتك';
+
   return [
     {
       id: '1',
@@ -32,7 +33,7 @@ const generateMockLearningPath = (skills: SkillGap[]): LearningRecommendation[] 
       type: 'lesson',
       priority: 'high',
       duration: '25 دقيقة',
-      reason: 'نظراً لأن درجتك في الجبر 45%، ننصح بمراجعة الأساسيات أولاً',
+      reason: `نظراً لأن درجتك في ${skillLabel} منخفضة، ننصح بمراجعة الأساسيات أولاً`,
       actionLabel: 'ابدأ المراجعة'
     },
     {
@@ -99,7 +100,7 @@ export const SmartLearningPath: React.FC<Props> = ({ skills }) => {
 
       {/* Timeline Container */}
       <div className="relative border-r-2 border-purple-100 mr-4 space-y-6">
-        {recommendations.map((item, index) => (
+        {recommendations.map((item) => (
           <div key={item.id} className="relative pr-8">
             {/* Timeline Dot */}
             <div className={`absolute -right-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm ${

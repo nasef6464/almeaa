@@ -31,11 +31,18 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, color = 'success'
   };
 
   return (
-    <div className="w-full bg-gray-200 rounded-full h-2">
-      <div 
-        className={`h-2 rounded-full ${getColorClasses(color)} transition-all duration-300`}
-        style={{ width: `${Math.min(percentage, 100)}%` }}
-      ></div>
+    <div>
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className={`h-2 rounded-full ${getColorClasses(color)} transition-all duration-300`}
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        ></div>
+      </div>
+      {showPercentage && (
+        <div className="mt-1 text-[10px] text-right text-gray-500 font-bold">
+          {Math.round(Math.min(percentage, 100))}%
+        </div>
+      )}
     </div>
   );
 };
