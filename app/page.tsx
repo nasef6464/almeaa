@@ -32,6 +32,27 @@ export default function HomePage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold mb-6">لوحات التحكم</h2>
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <Link href="/taxonomy" className="block p-4 border-2 rounded-xl hover:border-amber-500 hover:bg-amber-50 transition-colors">
+              <div className="text-2xl mb-2">🌳</div>
+              <h3 className="font-bold text-gray-900">شجرة المهارات</h3>
+              <p className="text-sm text-gray-600">استعرض المواد والأقسام والمهارات</p>
+            </Link>
+            <Link href="/schools" className="block p-4 border-2 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-colors">
+              <div className="text-2xl mb-2">🏫</div>
+              <h3 className="font-bold text-gray-900">المدارس</h3>
+              <p className="text-sm text-gray-600">إدارة المدارس والمجموعات</p>
+            </Link>
+            <Link href="/banks" className="block p-4 border-2 rounded-xl hover:border-green-500 hover:bg-green-50 transition-colors">
+              <div className="text-2xl mb-2">📚</div>
+              <h3 className="font-bold text-gray-900">بنك الأسئلة</h3>
+              <p className="text-sm text-gray-600">إدارة وتصنيف الأسئلة</p>
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8 mt-8">
           <h2 className="text-2xl font-bold mb-6">واجهات البرمجة (API)</h2>
           <div className="space-y-3">
             <Link href="/api/health" className="block p-4 border rounded-lg hover:border-blue-500">
