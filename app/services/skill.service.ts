@@ -135,6 +135,15 @@ export class SkillService {
       include: {
         skill: {
           include: {
+            section: {
+              include: {
+                category: {
+                  include: {
+                    subject: true,
+                  },
+                },
+              },
+            },
             videos: {
               where: { status: ContentStatus.PUBLISHED },
               orderBy: { order: 'asc' },
