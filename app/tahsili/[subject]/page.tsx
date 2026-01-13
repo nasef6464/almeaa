@@ -20,6 +20,20 @@ const titles: Record<TahsiliSubject, string> = {
   offers: 'عروض التحصيلي'
 };
 
+const subtitles: Record<string, string> = {
+  math: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
+  physics: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
+  chemistry: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
+  biology: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
+};
+
+const icons: Record<string, string> = {
+  math: '🔢',
+  physics: '⚛️',
+  chemistry: '🧪',
+  biology: '🧬',
+};
+
 export default async function TahsiliPage({ params }: { params: { subject: string } }) {
   const subject = params.subject as TahsiliSubject;
 
@@ -125,8 +139,11 @@ export default async function TahsiliPage({ params }: { params: { subject: strin
     <div className="bg-gray-50 min-h-screen pb-20" dir="rtl">
       <header className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white py-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-4xl font-bold mb-2">{titles[subject]}</h1>
-          <p className="text-lg text-emerald-100">دورات، مهارات، بنوك أسئلة، واختبارات محاكية</p>
+          <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+            <span>{icons[subject] || '📚'}</span>
+            <span>{titles[subject]}</span>
+          </h1>
+          <p className="text-lg text-emerald-100">{subtitles[subject] || 'تأسيس شامل، شرح مفصل، واختبارات محاكية'}</p>
         </div>
       </header>
 

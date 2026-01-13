@@ -16,6 +16,11 @@ const titles: Record<QudratType, string> = {
   packages: 'باقات القدرات'
 };
 
+const subtitles: Record<string, string> = {
+  quant: 'تأسيس شامل، تدريب مكثف، واختبارات محاكية',
+  verbal: 'تأسيس شامل، تدريب مكثف، واختبارات محاكية',
+};
+
 export default async function QudratPage({ params }: { params: { type: string } }) {
   const type = params.type as QudratType;
 
@@ -121,8 +126,11 @@ export default async function QudratPage({ params }: { params: { type: string } 
     <div className="bg-gray-50 min-h-screen pb-20" dir="rtl">
       <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-4xl font-bold mb-2">{titles[type]}</h1>
-          <p className="text-lg text-blue-100">دورات، مهارات، بنوك أسئلة، واختبارات محاكية</p>
+          <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+            <span>📚</span>
+            <span>{titles[type]}</span>
+          </h1>
+          <p className="text-lg text-blue-100">{subtitles[type] || 'تأسيس شامل، تدريب مكثف، واختبارات محاكية'}</p>
         </div>
       </header>
 
