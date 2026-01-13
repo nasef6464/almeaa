@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of من المئة  2",
+  "description": "A comprehensive, AI-enhanced LMS platform featuring adaptive learning, gamification, and detailed analytics, built with React, Tailwind, and Gemini AI.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
