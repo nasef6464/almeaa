@@ -21,7 +21,7 @@ export default function TahsiliMainPage() {
           {/* رياضيات */}
           <Link href="/tahsili/math">
             <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[180px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">رياضيات</h2>
+              <h2 className="text-3xl font-black mb-2">التحصيلي رياضيات</h2>
               <p className="text-amber-50 text-sm">تأسيس شامل</p>
             </div>
           </Link>
@@ -29,7 +29,7 @@ export default function TahsiliMainPage() {
           {/* فيزياء */}
           <Link href="/tahsili/physics">
             <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[180px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">فيزياء</h2>
+              <h2 className="text-3xl font-black mb-2">التحصيلي فيزياء</h2>
               <p className="text-blue-50 text-sm">شرح مبسط</p>
             </div>
           </Link>
@@ -37,7 +37,7 @@ export default function TahsiliMainPage() {
           {/* كيمياء */}
           <Link href="/tahsili/chemistry">
             <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[180px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">كيمياء</h2>
+              <h2 className="text-3xl font-black mb-2">التحصيلي كيمياء</h2>
               <p className="text-purple-50 text-sm">من الصفر</p>
             </div>
           </Link>
@@ -45,7 +45,7 @@ export default function TahsiliMainPage() {
           {/* أحياء */}
           <Link href="/tahsili/biology">
             <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[180px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">أحياء</h2>
+              <h2 className="text-3xl font-black mb-2">التحصيلي أحياء</h2>
               <p className="text-emerald-50 text-sm">التفوق المضمون</p>
             </div>
           </Link>

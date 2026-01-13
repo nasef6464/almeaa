@@ -21,7 +21,7 @@ export default function QudratMainPage() {
           {/* لفظي قدرات */}
           <Link href="/qudrat/verbal">
             <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[200px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">لفظي قدرات</h2>
+              <h2 className="text-3xl font-black mb-2">القدرات اللفظي</h2>
               <p className="text-amber-50 text-sm">تأسيس - مكثف - تدريب</p>
             </div>
           </Link>
@@ -29,7 +29,7 @@ export default function QudratMainPage() {
           {/* كمي قدرات */}
           <Link href="/qudrat/quant">
             <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-8 text-white hover:shadow-2xl transition-all cursor-pointer transform hover:-translate-y-2 min-h-[200px] flex flex-col justify-center items-center text-center">
-              <h2 className="text-3xl font-black mb-2">كمي قدرات</h2>
+              <h2 className="text-3xl font-black mb-2">القدرات الكمي</h2>
               <p className="text-blue-50 text-sm">تأسيس - كمي - شروحات</p>
             </div>
           </Link>
