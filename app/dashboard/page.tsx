@@ -5,6 +5,10 @@ import { FileText, Map, PieChart, Target, TrendingUp, Zap } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/app/db';
 import { SkillService } from '@/app/services/skill.service';
+import { QuickAction } from '@/components/dashboard/QuickAction';
+import { SmartLearningPath } from '@/components/dashboard/SmartLearningPath';
+import { WeakPointsSummary } from '@/components/dashboard/WeakPointsSummary';
+import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule';
 
 type EnrollmentWithCourse = {
   id: string;
@@ -239,98 +243,24 @@ export default async function DashboardPage() {
           </div>
 
           <div className="space-y-8">
-            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">مسار التعلم الذكي</h3>
-                <span className="text-xs text-gray-500">يُحدث من التقدم الفعلي</span>
-              </div>
-              <div className="space-y-4">
-                {learningPaths.length ? (
-                  learningPaths.map((path) => (
-                    <div key={path.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="font-bold text-gray-900">{path.course.title}</p>
-                        <span className="text-xs font-semibold text-amber-600">{Math.round(path.progress)}%</span>
-                      </div>
-                      <Progress value={path.progress} />
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState title="لم يبدأ مسار التعلم بعد" actionHref="/dashboard/plan" actionLabel="ابدأ المسار" compact />
-                )}
-              </div>
-            </section>
+            {/* AI Learning Path Widget */}
+            <SmartLearningPath skills={weakSkills.map(ws => ({
+              skill: ws.skill.name,
+              mastery: ws.masteryScore
+            }))} />
 
-            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">مهارات بحاجة تقوية</h3>
-                <span className="text-xs text-gray-500">تستند لأحدث محاولاتك</span>
-              </div>
-              <div className="space-y-3">
-                {weakSkills.length ? (
-                  weakSkills.slice(0, 4).map((ws) => (
-                    <div key={ws.skill.id} className="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-between">
-                      <div>
-                        <p className="font-bold text-gray-900">{ws.skill.name}</p>
-                        <p className="text-xs text-gray-500">{ws.skill.section.category.subject.name}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-rose-600">{Math.round(ws.masteryScore)}%</span>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState title="لا توجد مهارات ضعيفة حالياً" compact />
-                )}
-              </div>
-            </section>
+            {/* Weekly Schedule */}
+            <WeeklySchedule />
 
-            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">فيديوهات مقترحة</h3>
-                <span className="text-xs text-gray-500">مرتبطة بالمهارات الأضعف</span>
-              </div>
-              <div className="space-y-3">
-                {recommendedVideos.length ? (
-                  recommendedVideos.map((video) => (
-                    <Link key={video.id} href={video.url} target="_blank" className="block p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-amber-200 hover:bg-amber-50 transition-colors">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-bold text-gray-900">{video.title}</p>
-                        <span className="text-xs text-gray-500">{formatDuration(video.duration)}</span>
-                      </div>
-                      <p className="text-xs text-gray-500">{video.skill.section.category.subject.name} • {video.skill.name}</p>
-                    </Link>
-                  ))
-                ) : (
-                  <EmptyState title="لا توجد فيديوهات مقترحة الآن" compact />
-                )}
-              </div>
-            </section>
+            {/* Weak Points Summary */}
+            <WeakPointsSummary skills={weakSkills.map(ws => ({
+              skill: ws.skill.name,
+              mastery: ws.masteryScore
+            }))} />
           </div>
         </div>
       </main>
     </div>
-  );
-}
-
-type AccentColor = 'purple' | 'blue' | 'emerald' | 'indigo';
-
-function QuickAction({ href, icon, label, color }: { href: string; icon: React.ReactNode; label: string; color: AccentColor }) {
-  const palette: Record<AccentColor, string> = {
-    purple: 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white',
-    blue: 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white',
-    emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white',
-    indigo: 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white',
-  };
-
-  return (
-    <Link
-      href={href}
-      className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group"
-    >
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${palette[color]}`}>
-        {icon}
-      </div>
-      <span className="font-bold text-gray-800 text-xs">{label}</span>
-    </Link>
   );
 }
 
