@@ -1,13 +1,11 @@
 /**
  * Database Seed Script
  * 
- * Run with: npm run db:seed
- * 
- * This script populates the database with initial data for development.
+ * Run with: node prisma/seed-catalog.mjs
  */
 
-import { PrismaClient } from '../app/generated/prisma/index.js';
-import * as bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -27,34 +25,6 @@ async function main() {
     },
   });
   console.log('✅ Created super admin:', superAdmin.email);
-
-  // Create school admin user
-  const schoolAdminPassword = await bcrypt.hash('schooladmin123', 10);
-  const schoolAdmin = await prisma.user.upsert({
-    where: { email: 'schooladmin@example.com' },
-    update: {},
-    create: {
-      email: 'schooladmin@example.com',
-      name: 'School Administrator',
-      password: schoolAdminPassword,
-      role: 'SCHOOL_ADMIN',
-    },
-  });
-  console.log('✅ Created school admin:', schoolAdmin.email);
-
-  // Create trainer user
-  const trainerPassword = await bcrypt.hash('trainer123', 10);
-  const trainer = await prisma.user.upsert({
-    where: { email: 'trainer@example.com' },
-    update: {},
-    create: {
-      email: 'trainer@example.com',
-      name: 'Training Instructor',
-      password: trainerPassword,
-      role: 'TRAINER',
-    },
-  });
-  console.log('✅ Created trainer:', trainer.email);
 
   // Create student user
   const studentPassword = await bcrypt.hash('student123', 10);
@@ -166,11 +136,7 @@ async function main() {
   ];
 
   for (const course of courses) {
-    await prisma.catalogCourse.upsert({
-      where: { id: `course_${course.order}_${course.category}` },
-      update: course,
-      create: { ...course, id: `course_${course.order}_${course.category}` }
-    });
+    await prisma.catalogCourse.create({ data: course });
   }
   console.log(`✅ Seeded ${courses.length} courses`);
 
@@ -222,11 +188,7 @@ async function main() {
   ];
 
   for (const skill of skills) {
-    await prisma.catalogSkill.upsert({
-      where: { id: `skill_${skill.order}_${skill.category}` },
-      update: skill,
-      create: { ...skill, id: `skill_${skill.order}_${skill.category}` }
-    });
+    await prisma.catalogSkill.create({ data: skill });
   }
   console.log(`✅ Seeded ${skills.length} skills`);
 
@@ -260,11 +222,7 @@ async function main() {
   ];
 
   for (const bank of questionBanks) {
-    await prisma.catalogQuestionBank.upsert({
-      where: { id: `bank_${bank.order}_${bank.category}` },
-      update: bank,
-      create: { ...bank, id: `bank_${bank.order}_${bank.category}` }
-    });
+    await prisma.catalogQuestionBank.create({ data: bank });
   }
   console.log(`✅ Seeded ${questionBanks.length} question banks`);
 
@@ -295,11 +253,7 @@ async function main() {
   ];
 
   for (const test of simTests) {
-    await prisma.catalogSimTest.upsert({
-      where: { id: `test_${test.order}_${test.category}` },
-      update: test,
-      create: { ...test, id: `test_${test.order}_${test.category}` }
-    });
+    await prisma.catalogSimTest.create({ data: test });
   }
   console.log(`✅ Seeded ${simTests.length} simulation tests`);
 
@@ -404,28 +358,21 @@ async function main() {
   ];
 
   for (const pkg of packages) {
-    await prisma.catalogPackage.upsert({
-      where: { id: `pkg_${pkg.order}_${pkg.type}` },
-      update: pkg,
-      create: { ...pkg, id: `pkg_${pkg.order}_${pkg.type}` }
-    });
+    await prisma.catalogPackage.create({ data: pkg });
   }
   console.log(`✅ Seeded ${packages.length} packages`);
 
   console.log('\n🎉 Database seeded successfully!');
   console.log('\n📝 Test Credentials:');
   console.log('   Super Admin:  superadmin@example.com / superadmin123');
-  console.log('   School Admin: schooladmin@example.com / schooladmin123');
-  console.log('   Trainer:      trainer@example.com / trainer123');
   console.log('   Student:      student@example.com / student123');
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error('❌ Error seeding database:', e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
