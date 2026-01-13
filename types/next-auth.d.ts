@@ -1,4 +1,5 @@
 import 'next-auth';
+import type { Parent, SchoolAdmin, Student, Supervisor, Trainer } from '@/app/generated/prisma';
 
 declare module 'next-auth' {
   interface User {
@@ -6,10 +7,11 @@ declare module 'next-auth' {
     email: string;
     name: string;
     role: string;
-    student?: any;
-    trainer?: any;
-    schoolAdmin?: any;
-    supervisor?: any;
+    student?: Student | null;
+    trainer?: Trainer | null;
+    schoolAdmin?: SchoolAdmin | null;
+    supervisor?: Supervisor | null;
+    parent?: Parent | null;
   }
 
   interface Session {
@@ -18,6 +20,11 @@ declare module 'next-auth' {
       email: string;
       name: string;
       role: string;
+      student?: Student | null;
+      trainer?: Trainer | null;
+      schoolAdmin?: SchoolAdmin | null;
+      supervisor?: Supervisor | null;
+      parent?: Parent | null;
     };
   }
 }

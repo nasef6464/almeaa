@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '../app/db';
-import { DifficultyLevel, QuestionType, ContentStatus, UserRole } from '../app/generated/prisma';
+import { DifficultyLevel, QuestionType, ContentStatus } from '../app/generated/prisma';
 
 async function main() {
   console.log('🌱 Seeding skills-based content...\n');

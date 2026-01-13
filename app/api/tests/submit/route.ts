@@ -32,12 +32,13 @@ export async function POST(request: Request) {
       success: true,
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to submit test';
     console.error('Error submitting test:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to submit test',
+        error: message,
       },
       { status: 500 }
     );

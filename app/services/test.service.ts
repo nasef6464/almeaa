@@ -8,7 +8,8 @@
  */
 
 import { prisma } from '@/app/db';
-import { DifficultyLevel, QuestionType } from '@/app/generated/prisma';
+import { DifficultyLevel, QuestionType, TestType } from '@/app/generated/prisma';
+import type { Prisma, Question } from '@/app/generated/prisma';
 import { SkillService } from './skill.service';
 
 export class TestService {
@@ -30,25 +31,25 @@ export class TestService {
 
     // Determine difficulty distribution based on mastery
     let difficultyDistribution: { level: DifficultyLevel; count: number }[];
-    
+
     if (masteryScore < 40) {
-      // Beginner - mostly EASY questions
+      // Beginner focus
       difficultyDistribution = [
-        { level: DifficultyLevel.EASY, count: Math.ceil(questionCount * 0.7) },
-        { level: DifficultyLevel.MEDIUM, count: Math.floor(questionCount * 0.3) },
+        { level: DifficultyLevel.BEGINNER, count: Math.ceil(questionCount * 0.7) },
+        { level: DifficultyLevel.INTERMEDIATE, count: Math.floor(questionCount * 0.3) },
       ];
     } else if (masteryScore < 70) {
-      // Intermediate - balanced mix
+      // Balanced
       difficultyDistribution = [
-        { level: DifficultyLevel.EASY, count: Math.ceil(questionCount * 0.3) },
-        { level: DifficultyLevel.MEDIUM, count: Math.ceil(questionCount * 0.5) },
-        { level: DifficultyLevel.HARD, count: Math.floor(questionCount * 0.2) },
+        { level: DifficultyLevel.BEGINNER, count: Math.ceil(questionCount * 0.2) },
+        { level: DifficultyLevel.INTERMEDIATE, count: Math.ceil(questionCount * 0.5) },
+        { level: DifficultyLevel.ADVANCED, count: Math.floor(questionCount * 0.3) },
       ];
     } else {
-      // Advanced - challenging questions
+      // Challenge mode
       difficultyDistribution = [
-        { level: DifficultyLevel.MEDIUM, count: Math.ceil(questionCount * 0.4) },
-        { level: DifficultyLevel.HARD, count: Math.floor(questionCount * 0.6) },
+        { level: DifficultyLevel.INTERMEDIATE, count: Math.ceil(questionCount * 0.4) },
+        { level: DifficultyLevel.ADVANCED, count: Math.floor(questionCount * 0.6) },
       ];
     }
 
@@ -65,17 +66,13 @@ export class TestService {
         },
       },
       include: {
-        questionAnswers: {
-          select: { questionId: true },
-        },
+        answers: { select: { questionId: true } },
       },
       take: 5,
       orderBy: { createdAt: 'desc' },
     });
 
-    const answeredQuestionIds = previousAttempts.flatMap((attempt) =>
-      attempt.questionAnswers.map((qa) => qa.questionId)
-    );
+    const answeredQuestionIds = previousAttempts.flatMap((attempt) => attempt.answers.map((qa) => qa.questionId));
 
     // Fetch questions by difficulty
     const selectedQuestions = [];
@@ -85,7 +82,6 @@ export class TestService {
         where: {
           skillId,
           difficultyLevel: level,
-          status: 'PUBLISHED',
           id: { notIn: answeredQuestionIds },
         },
         take: count,
@@ -100,7 +96,6 @@ export class TestService {
       const additionalQuestions = await prisma.question.findMany({
         where: {
           skillId,
-          status: 'PUBLISHED',
           id: { notIn: selectedQuestions.map((q) => q.id) },
         },
         take: questionCount - selectedQuestions.length,
@@ -111,9 +106,9 @@ export class TestService {
     // Create test record
     const test = await prisma.test.create({
       data: {
-        title: `Adaptive Test - ${new Date().toLocaleDateString()}`,
-        type: 'PRACTICE',
-        duration: questionCount * 2, // 2 minutes per question
+        title: `اختبار تكيفي - ${new Date().toLocaleDateString('ar-SA')}`,
+        type: TestType.PRACTICE,
+        timeLimit: questionCount * 2, // دقائق تقديرية
         passingScore: 60,
         testQuestions: {
           create: selectedQuestions.map((question, index) => ({
@@ -146,11 +141,11 @@ export class TestService {
       test: {
         id: test.id,
         title: test.title,
-        duration: test.duration,
+        timeLimit: test.timeLimit,
         questionCount: selectedQuestions.length,
         questions: test.testQuestions.map((tq) => ({
           id: tq.question.id,
-          text: tq.question.text,
+          text: tq.question.question,
           type: tq.question.type,
           options: tq.question.options,
           difficultyLevel: tq.question.difficultyLevel,
@@ -209,7 +204,7 @@ export class TestService {
       earnedPoints += pointsEarned;
 
       questionAnswers.push({
-        testAttemptId: attemptId,
+        attemptId,
         questionId: answer.questionId,
         answer: answer.answer,
         isCorrect,
@@ -231,6 +226,8 @@ export class TestService {
           completedAt: new Date(),
           score,
           passed,
+          totalPoints,
+          earnedPoints,
         },
       }),
     ]);
@@ -273,25 +270,25 @@ export class TestService {
    * Check if an answer is correct
    */
   private static checkAnswer(
-    question: any,
+    question: Pick<Question, 'type' | 'correctAnswer'>,
     studentAnswer: string
   ): boolean {
+    const normalizedAnswer = studentAnswer.trim().toLowerCase();
+    const normalizedCorrect = String(question.correctAnswer || '').trim().toLowerCase();
+
     if (question.type === QuestionType.MULTIPLE_CHOICE) {
-      return studentAnswer.trim() === question.correctAnswer.trim();
+      return normalizedAnswer === normalizedCorrect;
     }
 
     if (question.type === QuestionType.TRUE_FALSE) {
-      return studentAnswer.toLowerCase() === question.correctAnswer.toLowerCase();
+      return normalizedAnswer === normalizedCorrect;
     }
 
-    if (question.type === QuestionType.SHORT_ANSWER) {
-      // Case-insensitive comparison, trim whitespace
-      return (
-        studentAnswer.trim().toLowerCase() ===
-        question.correctAnswer.trim().toLowerCase()
-      );
+    if (question.type === QuestionType.FILL_BLANK) {
+      return normalizedAnswer === normalizedCorrect;
     }
 
+    // For essay/matching we skip auto-grade
     return false;
   }
 
@@ -299,7 +296,7 @@ export class TestService {
    * Get student's test history for a skill
    */
   static async getTestHistory(studentId: string, skillId?: string) {
-    const where: any = { studentId };
+    const where: Prisma.TestAttemptWhereInput = { studentId };
 
     if (skillId) {
       where.test = {

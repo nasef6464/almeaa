@@ -1,102 +1,392 @@
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { FileText, Map, PieChart, Target, TrendingUp, Zap } from 'lucide-react';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/app/db';
+import { SkillService } from '@/app/services/skill.service';
+
+type EnrollmentWithCourse = {
+  id: string;
+  enrolledAt: Date;
+  course: {
+    id: string;
+    title: string;
+    description: string | null;
+    thumbnail: string | null;
+    level: string;
+  };
+};
+
+type TestAttempt = {
+  id: string;
+  createdAt: Date;
+  score: number | null;
+  test: {
+    title: string;
+    type: string;
+  };
+};
+
+type LearningPathWithCourse = {
+  id: string;
+  progress: number;
+  course: { id: string; title: string };
+};
+
+type WeakSkill = {
+  skill: {
+    id: string;
+    name: string;
+    section: {
+      category: {
+        subject: { name: string };
+      };
+    };
+  };
+  masteryScore: number;
+};
+
+type VideoRecommendation = {
+  id: string;
+  title: string;
+  url: string;
+  duration: number;
+  skill: {
+    name: string;
+    section: {
+      category: {
+        subject: { name: string };
+      };
+    };
+  };
+};
 
 export default async function DashboardPage() {
   const session = await auth();
-
-  if (!session?.user) {
-    redirect('/auth/signin');
-  }
+  if (!session?.user) redirect('/auth/signin');
 
   const { user } = session;
+  const role = user.role;
+
+  const roleRedirect: Record<string, string> = {
+    SUPER_ADMIN: '/dashboard/admin',
+    SCHOOL_ADMIN: '/dashboard/admin',
+    ADMIN: '/dashboard/admin',
+    TRAINER: '/dashboard/trainer',
+    PARENT: '/dashboard/parent',
+    SUPERVISOR: '/dashboard/supervisor',
+  };
+
+  if (role !== 'STUDENT' && roleRedirect[role]) {
+    redirect(roleRedirect[role]);
+  }
+
+  const studentId = user.student?.id || null;
+  const isStudent = user.role === 'STUDENT';
+  const firstName = user.name?.split(' ')[0] || 'مستخدم';
+
+  const [enrollments, testHistory, learningPaths, weakSkills, progress] = await Promise.all([
+    studentId
+      ? prisma.enrollment.findMany({
+          where: { studentId },
+          include: {
+            course: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                thumbnail: true,
+                level: true,
+              },
+            },
+          },
+          orderBy: { enrolledAt: 'desc' },
+          take: 3,
+        })
+      : ([] as EnrollmentWithCourse[]),
+    studentId
+      ? prisma.testAttempt.findMany({
+          where: { studentId },
+          include: {
+            test: {
+              select: {
+                title: true,
+                type: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 4,
+        })
+      : ([] as TestAttempt[]),
+    studentId
+      ? prisma.learningPath.findMany({
+          where: { studentId },
+          include: {
+            course: {
+              select: { id: true, title: true },
+            },
+          },
+          orderBy: { updatedAt: 'desc' },
+          take: 3,
+        })
+      : ([] as LearningPathWithCourse[]),
+    studentId ? SkillService.getWeakSkills(studentId, 75) : ([] as WeakSkill[]),
+    studentId ? SkillService.getStudentProgress(studentId) : null,
+  ]);
+
+  const recommendedVideos: VideoRecommendation[] = studentId
+    ? await SkillService.getRecommendedVideos(studentId, 4)
+    : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <h1 className="text-xl font-bold text-gray-900">🎓 Adaptive Learning Platform</h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-700">
-                {user.name} <span className="text-gray-500">({user.role})</span>
-              </span>
-              <form action="/api/auth/signout" method="POST">
-                <button className="text-sm text-red-600 hover:text-red-700 font-medium">
-                  Sign Out
-                </button>
-              </form>
-            </div>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <main className="max-w-6xl mx-auto px-4 lg:px-6 py-8 space-y-8">
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-2">
+            <p className="text-sm text-gray-500">لوحة تحكم الطالب</p>
+            <h1 className="text-3xl font-bold text-gray-900">مرحباً، {firstName} 👋</h1>
+            <p className="text-gray-500 text-lg">لنواصل رحلة التعلم اليوم في منصة المئة</p>
           </div>
-        </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome, {user.name}! 👋
-          </h2>
-          <p className="text-gray-600">
-            Role: <span className="font-semibold text-blue-600">{user.role}</span>
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
-            <div className="text-4xl mb-3">🎯</div>
-            <h3 className="text-lg font-semibold mb-2">Skills Mastery</h3>
-            <p className="text-blue-100 text-sm">Track your progress across subjects</p>
+          <div className="bg-amber-100 text-amber-700 px-6 py-3 rounded-2xl text-sm font-bold inline-flex items-center gap-2 shadow-sm">
+            <TrendingUp size={20} />
+            المستوى 12
           </div>
+        </header>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-lg font-semibold mb-2">Analytics</h3>
-            <p className="text-green-100 text-sm">View detailed performance insights</p>
-          </div>
+        {isStudent && (
+          <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <StatCard title="متوسط الإتقان" value={`${progress?.averageMastery ?? 0}%`} hint="حساب بناءً على آخر محاولاتك" accent="amber" />
+            <StatCard title="مهارات متقنة" value={String(progress?.masteredSkills ?? 0)} hint={`من أصل ${progress?.totalSkills ?? 0}`} accent="emerald" />
+            <StatCard title="مهارات تحتاج دعم" value={String(progress?.weakSkills ?? 0)} hint="أولوية لمراجعة المحتوى" accent="rose" />
+          </section>
+        )}
 
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-            <div className="text-4xl mb-3">🎥</div>
-            <h3 className="text-lg font-semibold mb-2">Video Library</h3>
-            <p className="text-purple-100 text-sm">Access personalized content</p>
-          </div>
-        </div>
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <QuickAction href="/dashboard/saher" icon={<Zap size={22} />} label="ساهر" color="purple" />
+          <QuickAction href="/dashboard/tests" icon={<FileText size={22} />} label="اختباراتي" color="blue" />
+          <QuickAction href="/dashboard/reports" icon={<PieChart size={22} />} label="التقارير" color="emerald" />
+          <QuickAction href="/dashboard/plan" icon={<Map size={22} />} label="خطتي" color="indigo" />
+        </section>
 
-        {user.role === 'STUDENT' && (
-          <div className="mt-8 bg-white rounded-xl shadow-sm p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">📚 Your Learning Path</h3>
-            <p className="text-gray-600 mb-4">Start mastering skills today</p>
-            <div className="space-y-3">
-              <Link href="/api/skills" target="_blank" className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl">
-                  🔢
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">Mathematics</h4>
-                  <p className="text-sm text-gray-600">Algebra • Linear Equations</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-blue-600">3 Skills</div>
-                  <div className="text-xs text-gray-500">6 Questions</div>
-                </div>
-              </Link>
-            </div>
-            
-            <div className="mt-6 pt-6 border-t">
-              <h4 className="font-semibold text-gray-900 mb-3">🎯 Take a Test</h4>
-              <p className="text-sm text-gray-600 mb-4">Get skill IDs from the API above, then test yourself:</p>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-700 mb-2">Example: Click "Mathematics" above to see skill IDs, then:</p>
-                <Link 
-                  href="/test?skillId=YOUR_SKILL_ID" 
-                  className="inline-block bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors text-sm"
-                >
-                  Start Adaptive Test
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">الكورسات النشطة</h2>
+                <Link href="/dashboard/my-courses" className="text-amber-600 text-sm font-bold hover:text-amber-700">
+                  عرض الكل
                 </Link>
               </div>
-            </div>
+              <div className="grid gap-4">
+                {enrollments.length ? (
+                  enrollments.map((enrollment) => (
+                    <div key={enrollment.id} className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                      <div className="p-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="space-y-1">
+                          <h3 className="font-bold text-lg text-gray-900">{enrollment.course.title}</h3>
+                          <p className="text-xs text-gray-500">المستوى: {enrollment.course.level}</p>
+                        </div>
+                        <div className="flex flex-col gap-3 md:min-w-[260px]">
+                          <Progress value={Math.min(100, Math.max(0, (learningPaths.find((lp) => lp.course.id === enrollment.course.id)?.progress ?? 0)))} />
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <span>التقدم</span>
+                            <span className="font-semibold text-gray-800">{Math.round(learningPaths.find((lp) => lp.course.id === enrollment.course.id)?.progress ?? 0)}%</span>
+                          </div>
+                        </div>
+                        <Link href={`/dashboard/my-courses/${enrollment.course.id}`} className="inline-flex items-center justify-center bg-amber-500 text-white text-xs px-4 py-2 rounded-lg font-bold hover:bg-amber-600 transition-colors">
+                          متابعة
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState title="لا توجد كورسات مسجلة" actionHref="/dashboard/my-courses" actionLabel="تصفح الكورسات" />
+                )}
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">آخر الاختبارات</h2>
+                <Link href="/dashboard/tests" className="text-sm text-amber-600 font-semibold hover:text-amber-700">
+                  سجل الاختبارات
+                </Link>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                {testHistory.length ? (
+                  testHistory.map((test) => (
+                    <div key={test.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex items-center justify-between">
+                      <div className="space-y-1 text-right">
+                        <h3 className="font-bold text-gray-900">{test.test.title}</h3>
+                        <p className="text-sm text-gray-500 font-sans font-medium">{formatDate(test.createdAt)}</p>
+                        <p className="text-xs text-gray-500">النوع: {test.test.type}</p>
+                      </div>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 border-2 border-purple-100">
+                          <Target size={22} />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-800">{test.score ?? 0}%</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState title="لا يوجد سجل اختبارات بعد" actionHref="/dashboard/tests" actionLabel="ابدأ اختبار" />
+                )}
+              </div>
+            </section>
           </div>
-        )}
+
+          <div className="space-y-8">
+            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">مسار التعلم الذكي</h3>
+                <span className="text-xs text-gray-500">يُحدث من التقدم الفعلي</span>
+              </div>
+              <div className="space-y-4">
+                {learningPaths.length ? (
+                  learningPaths.map((path) => (
+                    <div key={path.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-gray-900">{path.course.title}</p>
+                        <span className="text-xs font-semibold text-amber-600">{Math.round(path.progress)}%</span>
+                      </div>
+                      <Progress value={path.progress} />
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState title="لم يبدأ مسار التعلم بعد" actionHref="/dashboard/plan" actionLabel="ابدأ المسار" compact />
+                )}
+              </div>
+            </section>
+
+            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">مهارات بحاجة تقوية</h3>
+                <span className="text-xs text-gray-500">تستند لأحدث محاولاتك</span>
+              </div>
+              <div className="space-y-3">
+                {weakSkills.length ? (
+                  weakSkills.slice(0, 4).map((ws) => (
+                    <div key={ws.skill.id} className="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-gray-900">{ws.skill.name}</p>
+                        <p className="text-xs text-gray-500">{ws.skill.section.category.subject.name}</p>
+                      </div>
+                      <span className="text-sm font-semibold text-rose-600">{Math.round(ws.masteryScore)}%</span>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState title="لا توجد مهارات ضعيفة حالياً" compact />
+                )}
+              </div>
+            </section>
+
+            <section className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">فيديوهات مقترحة</h3>
+                <span className="text-xs text-gray-500">مرتبطة بالمهارات الأضعف</span>
+              </div>
+              <div className="space-y-3">
+                {recommendedVideos.length ? (
+                  recommendedVideos.map((video) => (
+                    <Link key={video.id} href={video.url} target="_blank" className="block p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-amber-200 hover:bg-amber-50 transition-colors">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-bold text-gray-900">{video.title}</p>
+                        <span className="text-xs text-gray-500">{formatDuration(video.duration)}</span>
+                      </div>
+                      <p className="text-xs text-gray-500">{video.skill.section.category.subject.name} • {video.skill.name}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <EmptyState title="لا توجد فيديوهات مقترحة الآن" compact />
+                )}
+              </div>
+            </section>
+          </div>
+        </div>
       </main>
     </div>
   );
+}
+
+type AccentColor = 'purple' | 'blue' | 'emerald' | 'indigo';
+
+function QuickAction({ href, icon, label, color }: { href: string; icon: React.ReactNode; label: string; color: AccentColor }) {
+  const palette: Record<AccentColor, string> = {
+    purple: 'bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white',
+    blue: 'bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white',
+    emerald: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white',
+    indigo: 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white',
+  };
+
+  return (
+    <Link
+      href={href}
+      className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center gap-2 group"
+    >
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${palette[color]}`}>
+        {icon}
+      </div>
+      <span className="font-bold text-gray-800 text-xs">{label}</span>
+    </Link>
+  );
+}
+
+function Progress({ value }: { value: number }) {
+  return (
+    <div className="w-full h-2.5 rounded-full bg-gray-100 overflow-hidden">
+      <div className="h-full bg-amber-500" style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }} />
+    </div>
+  );
+}
+
+function StatCard({ title, value, hint, accent }: { title: string; value: string; hint: string; accent: 'amber' | 'emerald' | 'rose' }) {
+  const accents: Record<'amber' | 'emerald' | 'rose', string> = {
+    amber: 'bg-amber-50 text-amber-700 border-amber-100',
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+    rose: 'bg-rose-50 text-rose-700 border-rose-100',
+  };
+
+  return (
+    <div className={`rounded-2xl border p-4 shadow-sm ${accents[accent]}`}>
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="text-2xl font-bold mt-1">{value}</p>
+      <p className="text-xs mt-1 opacity-80">{hint}</p>
+    </div>
+  );
+}
+
+function EmptyState({ title, actionHref, actionLabel, compact }: { title: string; actionHref?: string; actionLabel?: string; compact?: boolean }) {
+  return (
+    <div className={`border border-dashed border-gray-200 rounded-2xl text-center ${compact ? 'p-4' : 'p-6'} bg-gray-50`}>
+      <p className="text-sm font-semibold text-gray-700">{title}</p>
+      {actionHref && actionLabel && (
+        <div className="mt-3">
+          <Link href={actionHref} className="text-sm font-bold text-amber-600 hover:text-amber-700">
+            {actionLabel}
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function formatDate(date: Date) {
+  try {
+    return new Intl.DateTimeFormat('ar-SA', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
+  } catch {
+    return '' + date;
+  }
+}
+
+function formatDuration(seconds: number) {
+  const mins = Math.max(1, Math.round(seconds / 60));
+  return `${mins} دقيقة`;
 }
