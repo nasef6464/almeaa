@@ -9,7 +9,7 @@
  */
 
 import { prisma } from '@/app/db';
-import { DifficultyLevel, ContentStatus } from '@prisma/client';
+import { DifficultyLevel, ContentStatus } from '@/app/generated/prisma';
 
 export class SkillService {
   /**

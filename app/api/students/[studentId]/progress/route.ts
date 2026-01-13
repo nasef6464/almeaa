@@ -6,10 +6,10 @@ import { SkillService } from '@/app/services/skill.service';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { studentId: string } }
+  { params }: { params: Promise<{ studentId: string }> }
 ) {
   try {
-    const { studentId } = params;
+    const { studentId } = await params;
 
     const progress = await SkillService.getStudentProgress(studentId);
     const weakSkills = await SkillService.getWeakSkills(studentId);
