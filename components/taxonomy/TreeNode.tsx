@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronLeft, BookOpen, GitBranch, ListTree, Sparkles } from "lucide-react";
+import { ChevronDown, ChevronLeft, BookOpen, GitBranch, ListTree, Sparkles, Plus, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
