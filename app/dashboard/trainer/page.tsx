@@ -101,7 +101,7 @@ export default async function TrainerDashboard() {
                     </div>
                     <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
                       <span>💵 ${course.price}</span>
-                      <span>⏱️ {course.durationWeeks} weeks</span>
+                      <span>⏱️ {course.duration || 0} days</span>
                       <span className="ml-auto">
                         <Link
                           href={`/trainer/courses/${course.id}`}
