@@ -12,8 +12,8 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed:skills": "tsx prisma/seed-skills.ts",
+    "db:seed": "dotenv -e .env -- tsx prisma/seed.ts",
+    "db:seed:skills": "dotenv -e .env -- tsx prisma/seed-skills.ts",
     "postinstall": "prisma generate",
     "deploy": "git add . && git commit -m \"update\" && git push",
     "deploy:msg": "git add . && git commit && git push"
@@ -36,6 +36,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
