@@ -1,8 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// =============================================================================
+// ADAPTIVE LEARNING PLATFORM - DATABASE SCHEMA
+// =============================================================================
+// Skills-based learning architecture with adaptive testing and analytics
+// Multi-tenant support for schools, trainers, and students
 
 generator client {
   provider = "prisma-client-js"
@@ -13,26 +13,613 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enums
+// =============================================================================
+// ENUMS
+// =============================================================================
+
 enum UserRole {
-  SUPER_ADMIN
-  TRAINER
-  STUDENT
-  PARENT
-  SUPERVISOR
-  SCHOOL_ADMIN
+  SUPER_ADMIN   // Platform owner
+  SCHOOL_ADMIN  // School management
+  TRAINER       // Content creator/teacher
+  SUPERVISOR    // Monitor multiple students
+  PARENT        // Student guardian
+  STUDENT       // End learner
 }
 
-// Models
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  role      UserRole @default(STUDENT)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  TRIAL
+}
+
+enum TestType {
+  DIAGNOSTIC    // Initial skill assessment
+  PRACTICE      // Regular practice
+  RECOVERY      // Auto-generated for weak skills
+  FINAL         // Certification/final exam
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  ESSAY
+  FILL_BLANK
+  MATCHING
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// =============================================================================
+// MULTI-TENANCY & AUTHENTICATION
+// =============================================================================
+
+model School {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  phone           String?
+  address         String?
+  logo            String?
+  isActive        Boolean  @default(true)
+  subscriptionEnd DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  students        Student[]
+  schoolAdmins    SchoolAdmin[]
+  subscriptions   Subscription[]
+  payments        Payment[]
 
   @@index([email])
+  @@map("schools")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String
+  avatar        String?
+  phone         String?
+  role          UserRole
+  isActive      Boolean  @default(true)
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  trainer       Trainer?
+  student       Student?
+  parent        Parent?
+  schoolAdmin   SchoolAdmin?
+  supervisor    Supervisor?
+
+  @@index([email, role])
   @@map("users")
+}
+
+model SchoolAdmin {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  schoolId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId])
+  @@map("school_admins")
+}
+
+model Trainer {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  bio             String?
+  specialization  String?
+  revenueShare    Float    @default(70) // Percentage
+  totalEarnings   Float    @default(0)
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courses Course[]
+
+  @@map("trainers")
+}
+
+model Student {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  schoolId    String?
+  grade       String?
+  dateOfBirth DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school            School?              @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  parents           StudentParent[]
+  enrollments       Enrollment[]
+  skillMastery      StudentSkillMastery[]
+  testAttempts      TestAttempt[]
+  recoveryPlans     RecoveryPlan[]
+  learningPaths     LearningPath[]
+  videoProgress     VideoProgress[]
+
+  @@index([schoolId])
+  @@map("students")
+}
+
+model Parent {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  children StudentParent[]
+
+  @@map("parents")
+}
+
+model StudentParent {
+  id        String   @id @default(cuid())
+  studentId String
+  parentId  String
+  createdAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, parentId])
+  @@index([parentId])
+  @@map("student_parents")
+}
+
+model Supervisor {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("supervisors")
+}
+
+// =============================================================================
+// SKILLS-BASED LEARNING HIERARCHY
+// =============================================================================
+
+model Subject {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  icon        String?
+  order       Int           @default(0)
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  categories Category[]
+
+  @@index([status, order])
+  @@map("subjects")
+}
+
+model Category {
+  id          String        @id @default(cuid())
+  subjectId   String
+  name        String
+  description String?
+  order       Int           @default(0)
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  subject  Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  sections Section[]
+
+  @@unique([subjectId, name])
+  @@index([subjectId, status])
+  @@map("categories")
+}
+
+model Section {
+  id          String        @id @default(cuid())
+  categoryId  String
+  name        String
+  description String?
+  order       Int           @default(0)
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  skills   Skill[]
+
+  @@unique([categoryId, name])
+  @@index([categoryId, status])
+  @@map("sections")
+}
+
+model Skill {
+  id               String           @id @default(cuid())
+  sectionId        String
+  name             String
+  description      String?
+  difficultyLevel  DifficultyLevel  @default(BEGINNER)
+  masteryThreshold Int              @default(80) // Percentage
+  order            Int              @default(0)
+  status           ContentStatus    @default(PUBLISHED)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  section       Section               @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  questions     Question[]
+  videos        Video[]
+  skillMastery  StudentSkillMastery[]
+  recoveryPlans RecoveryPlanSkill[]
+
+  @@unique([sectionId, name])
+  @@index([sectionId, status])
+  @@map("skills")
+}
+
+// =============================================================================
+// CONTENT (Questions & Videos)
+// =============================================================================
+
+model Question {
+  id              String          @id @default(cuid())
+  skillId         String
+  type            QuestionType
+  question        String // Text or JSON for complex questions
+  options         Json? // For MCQ, Matching, etc.
+  correctAnswer   String // JSON for complex answers
+  explanation     String?
+  difficultyLevel DifficultyLevel @default(BEGINNER)
+  points          Int             @default(1)
+  timeLimit       Int? // Seconds
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  skill         Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  testQuestions TestQuestion[]
+  answers       QuestionAnswer[]
+
+  @@index([skillId, difficultyLevel])
+  @@map("questions")
+}
+
+model Video {
+  id          String        @id @default(cuid())
+  skillId     String
+  title       String
+  description String?
+  url         String // YouTube, Vimeo, or self-hosted
+  thumbnail   String?
+  duration    Int // Seconds
+  order       Int           @default(0)
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  skill         Skill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  videoProgress VideoProgress[]
+
+  @@index([skillId, status])
+  @@map("videos")
+}
+
+// =============================================================================
+// TESTING & ASSESSMENT
+// =============================================================================
+
+model Test {
+  id              String        @id @default(cuid())
+  courseId        String?
+  title           String
+  description     String?
+  type            TestType
+  timeLimit       Int? // Minutes
+  passingScore    Int           @default(60) // Percentage
+  maxAttempts     Int?
+  shuffleQuestions Boolean      @default(true)
+  status          ContentStatus @default(PUBLISHED)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  course        Course?         @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  questions     TestQuestion[]
+  attempts      TestAttempt[]
+
+  @@index([courseId, type, status])
+  @@map("tests")
+}
+
+model TestQuestion {
+  id         String   @id @default(cuid())
+  testId     String
+  questionId String
+  order      Int
+  createdAt  DateTime @default(now())
+
+  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, questionId])
+  @@index([testId])
+  @@map("test_questions")
+}
+
+model TestAttempt {
+  id          String   @id @default(cuid())
+  testId      String
+  studentId   String
+  score       Float // Percentage
+  totalPoints Int
+  earnedPoints Int
+  timeSpent   Int // Seconds
+  startedAt   DateTime
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  test    Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers QuestionAnswer[]
+
+  @@index([studentId, testId])
+  @@index([completedAt])
+  @@map("test_attempts")
+}
+
+model QuestionAnswer {
+  id           String   @id @default(cuid())
+  attemptId    String
+  questionId   String
+  answer       String // JSON for complex answers
+  isCorrect    Boolean
+  pointsEarned Int
+  timeSpent    Int // Seconds
+  createdAt    DateTime @default(now())
+
+  attempt  TestAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+  @@map("question_answers")
+}
+
+// =============================================================================
+// ADAPTIVE LEARNING & ANALYTICS
+// =============================================================================
+
+model StudentSkillMastery {
+  id             String   @id @default(cuid())
+  studentId      String
+  skillId        String
+  masteryScore   Float // 0-100%
+  attemptsCount  Int      @default(0)
+  lastAttemptAt  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, skillId])
+  @@index([studentId, masteryScore])
+  @@index([skillId])
+  @@map("student_skill_mastery")
+}
+
+model RecoveryPlan {
+  id          String   @id @default(cuid())
+  studentId   String
+  title       String
+  description String?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skills  RecoveryPlanSkill[]
+
+  @@index([studentId, isCompleted])
+  @@map("recovery_plans")
+}
+
+model RecoveryPlanSkill {
+  id             String   @id @default(cuid())
+  recoveryPlanId String
+  skillId        String
+  targetScore    Int      @default(80) // Percentage
+  createdAt      DateTime @default(now())
+
+  recoveryPlan RecoveryPlan @relation(fields: [recoveryPlanId], references: [id], onDelete: Cascade)
+  skill        Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([recoveryPlanId, skillId])
+  @@index([skillId])
+  @@map("recovery_plan_skills")
+}
+
+model LearningPath {
+  id          String   @id @default(cuid())
+  studentId   String
+  courseId    String
+  progress    Float    @default(0) // Percentage
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId, progress])
+  @@map("learning_paths")
+}
+
+model VideoProgress {
+  id            String   @id @default(cuid())
+  studentId     String
+  videoId       String
+  watchedSeconds Int     @default(0)
+  isCompleted   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  video   Video   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, videoId])
+  @@index([studentId, isCompleted])
+  @@map("video_progress")
+}
+
+// =============================================================================
+// COURSES & MONETIZATION
+// =============================================================================
+
+model Course {
+  id              String        @id @default(cuid())
+  trainerId       String
+  title           String
+  description     String?
+  thumbnail       String?
+  price           Float         @default(0)
+  discountPrice   Float?
+  currency        String        @default("USD")
+  duration        Int? // Hours
+  level           DifficultyLevel @default(BEGINNER)
+  status          ContentStatus @default(DRAFT)
+  isPublished     Boolean       @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  trainer       Trainer        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  enrollments   Enrollment[]
+  tests         Test[]
+  learningPaths LearningPath[]
+  subscriptions CourseSubscription[]
+
+  @@index([trainerId, status])
+  @@index([isPublished, publishedAt])
+  @@map("courses")
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  studentId  String
+  courseId   String
+  enrolledAt DateTime @default(now())
+  expiresAt  DateTime?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+  schoolId    String?
+  name        String
+  price       Float
+  duration    Int // Days
+  status      SubscriptionStatus
+  startDate   DateTime
+  endDate     DateTime
+  isRecurring Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  school  School?              @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  courses CourseSubscription[]
+  payments Payment[]
+
+  @@index([schoolId, status])
+  @@index([endDate])
+  @@map("subscriptions")
+}
+
+model CourseSubscription {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  courseId       String
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  course       Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, courseId])
+  @@index([courseId])
+  @@map("course_subscriptions")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  schoolId       String?
+  subscriptionId String?
+  amount         Float
+  currency       String        @default("USD")
+  status         PaymentStatus
+  paymentMethod  String?
+  transactionId  String?       @unique
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  school       School?       @relation(fields: [schoolId], references: [id], onDelete: SetNull)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([schoolId, status])
+  @@index([transactionId])
+  @@map("payments")
+}
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  discount    Float // Percentage or fixed amount
+  isPercentage Boolean @default(true)
+  maxUses     Int?
+  usedCount   Int      @default(0)
+  validFrom   DateTime
+  validUntil  DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code, isActive])
+  @@index([validUntil])
+  @@map("coupons")
 }
