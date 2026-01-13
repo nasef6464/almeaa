@@ -1,283 +1,337 @@
-// Shared catalog/navigation data inspired by almeaago mock data
-// Keep lightweight to avoid pulling the legacy project runtime.
-import type { LucideIcon } from 'lucide-react';
-import { BookOpen, FileText, Grid, Home, LayoutGrid, MonitorPlay } from 'lucide-react';
-
-export type NavItem = {
-  id: string;
-  label: string;
-  href: string;
-  icon?: LucideIcon;
-  children?: { id: string; label: string; href: string }[];
+// Navigation structure matching almeaago
+export const navItems = {
+  qudrat: {
+    label: 'القدرات',
+    children: [
+      { id: 'quant', label: 'كمي', href: '/qudrat/quant' },
+      { id: 'verbal', label: 'لفظي', href: '/qudrat/verbal' },
+      { id: 'packages', label: 'الباقات', href: '/qudrat/packages' }
+    ]
+  },
+  tahsili: {
+    label: 'التحصيلي',
+    children: [
+      { id: 'math', label: 'رياضيات', href: '/tahsili/math' },
+      { id: 'physics', label: 'فيزياء', href: '/tahsili/physics' },
+      { id: 'chemistry', label: 'كيمياء', href: '/tahsili/chemistry' },
+      { id: 'biology', label: 'أحياء', href: '/tahsili/biology' },
+      { id: 'offers', label: 'العروض', href: '/tahsili/offers' }
+    ]
+  }
 };
 
-export const navItems: NavItem[] = [
-  { id: 'home', label: 'الرئيسية', href: '/', icon: Home },
-  {
-    id: 'qudrat',
-    label: 'القدرات',
-    href: '/qudrat',
-    icon: Grid,
-    children: [
-      { id: 'quant', label: 'القدرات (كمي)', href: '/qudrat/quant' },
-      { id: 'verbal', label: 'القدرات (لفظي)', href: '/qudrat/verbal' },
-      { id: 'packages', label: 'باقات وعروض القدرات', href: '/qudrat/packages' },
-    ],
-  },
-  {
-    id: 'tahsili',
-    label: 'التحصيلي',
-    href: '/tahsili',
-    icon: BookOpen,
-    children: [
-      { id: 'math', label: 'الرياضيات', href: '/tahsili/math' },
-      { id: 'physics', label: 'الفيزياء', href: '/tahsili/physics' },
-      { id: 'biology', label: 'الأحياء', href: '/tahsili/biology' },
-      { id: 'chemistry', label: 'الكيمياء', href: '/tahsili/chemistry' },
-      { id: 'offers', label: 'عروض وباقات التحصيلي', href: '/tahsili/offers' },
-    ],
-  },
-  {
-    id: 'tests',
-    label: 'اختبارات',
-    href: '/dashboard/tests',
-    icon: FileText,
-    children: [
-      { id: 'self', label: 'اختبر نفسك', href: '/dashboard/tests' },
-      { id: 'history', label: 'اختبارات سابقة', href: '/dashboard/tests?filter=history' },
-    ],
-  },
-  { id: 'blog', label: 'المدونة', href: '/blog', icon: BookOpen },
-  { id: 'others', label: 'أقسام أخرى', href: '/#sections', icon: LayoutGrid },
-];
-
-export type Course = {
+// Types
+type VideoLesson = {
   id: string;
   title: string;
-  thumbnail: string;
-  instructor: string;
-  price: number;
-  rating: number;
-  category: 'quant' | 'verbal' | 'tahsili';
-  badge?: string;
+  duration: string;
+  isLocked: boolean;
 };
 
-export const qudratCourses: Course[] = [
-  {
-    id: 'quant-pro',
-    title: 'Quant Pro',
-    thumbnail: 'https://placehold.co/600x360/2563eb/ffffff?text=Quant+Pro',
-    instructor: 'أ. ناصف أحمد',
-    price: 250,
-    rating: 4.9,
-    category: 'quant',
-    badge: 'القسم الكمي',
-  },
-  {
-    id: 'qudrat-quant',
-    title: 'Qudrat Quant',
-    thumbnail: 'https://placehold.co/600x360/3b82f6/ffffff?text=Qudrat+Quant',
-    instructor: 'أ. ناصف أحمد',
-    price: 200,
-    rating: 5,
-    category: 'quant',
-    badge: 'القسم الكمي',
-  },
-  {
-    id: 'qudrat-verbal',
-    title: 'التأسيس القدرات اللفظي',
-    thumbnail: 'https://placehold.co/600x360/f59e0b/ffffff?text=Qudrat+Verbal',
-    instructor: 'أ. أحمد عادل',
-    price: 180,
-    rating: 4.9,
-    category: 'verbal',
-    badge: 'القسم اللفظي',
-  },
-  {
-    id: 'tahsili-math',
-    title: 'الرياضيات (تحصيلي) - شامل',
-    thumbnail: 'https://placehold.co/600x360/111827/ffffff?text=Math',
-    instructor: 'د. محمد علي',
-    price: 220,
-    rating: 4.9,
-    category: 'tahsili',
-    badge: 'الرياضيات',
-  },
-  {
-    id: 'tahsili-physics',
-    title: 'الفيزياء (تحصيلي) - شامل',
-    thumbnail: 'https://placehold.co/600x360/ea580c/ffffff?text=Physics',
-    instructor: 'د. أحمد السعيد',
-    price: 210,
-    rating: 4.8,
-    category: 'tahsili',
-    badge: 'الفيزياء',
-  },
-  {
-    id: 'tahsili-chem',
-    title: 'الكيمياء (تحصيلي) - مكثف',
-    thumbnail: 'https://placehold.co/600x360/9333ea/ffffff?text=Chemistry',
-    instructor: 'أ. سامي',
-    price: 200,
-    rating: 4.7,
-    category: 'tahsili',
-    badge: 'الكيمياء',
-  },
-  {
-    id: 'tahsili-bio',
-    title: 'الأحياء (تحصيلي) - 2025',
-    thumbnail: 'https://placehold.co/600x360/10b981/ffffff?text=Biology',
-    instructor: 'أ. السيد عاشور',
-    price: 190,
-    rating: 5,
-    category: 'tahsili',
-    badge: 'الأحياء',
-  },
-];
+type Skill = {
+  id: string;
+  title: string;
+  progress: number;
+  lessonsCount: number;
+  videoLessons: VideoLesson[];
+};
 
-export type Skill = { id: number; title: string; progress: number; totalLessons: number; completed: number };
-export const skillsByCategory: Record<string, Skill[]> = {
+type Course = {
+  id: string;
+  title: string;
+  instructor: string;
+  rating: number;
+  studentsCount: number;
+  lessonsCount: number;
+  duration: string;
+  price: number;
+  originalPrice?: number;
+  badge: string | null;
+  thumbnail: string;
+};
+
+type Bank = {
+  id: string;
+  title: string;
+  questionsCount: number;
+  updatedAt: string;
+};
+
+type Test = {
+  id: string;
+  title: string;
+  questionsCount: number;
+  duration: string;
+};
+
+type Package = {
+  id: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  features: string[];
+  colorClass: string;
+  isPopular: boolean;
+};
+
+// Courses data
+export const courses: Record<string, Course[]> = {
   quant: [
-    { id: 1, title: 'أساسيات الحساب', progress: 80, totalLessons: 10, completed: 8 },
-    { id: 2, title: 'الجبر والمعادلات', progress: 45, totalLessons: 15, completed: 6 },
-    { id: 3, title: 'الهندسة المستوية', progress: 20, totalLessons: 12, completed: 2 },
-    { id: 4, title: 'تحليل البيانات والإحصاء', progress: 0, totalLessons: 8, completed: 0 },
+    {
+      id: 'c1',
+      title: 'دورة التأسيس الشامل (كمي) 2026',
+      instructor: 'أ. محمد العتيبي',
+      rating: 4.9,
+      studentsCount: 2547,
+      lessonsCount: 45,
+      duration: '32 ساعة',
+      price: 299,
+      originalPrice: 450,
+      badge: 'الأكثر مبيعاً',
+      thumbnail: 'https://placehold.co/600x400/3b82f6/ffffff?text=كمي'
+    },
+    {
+      id: 'c2',
+      title: 'دورة المحاكي الذكي (كمي)',
+      instructor: 'د. خالد الشمري',
+      rating: 4.8,
+      studentsCount: 1832,
+      lessonsCount: 30,
+      duration: '24 ساعة',
+      price: 249,
+      originalPrice: 350,
+      badge: 'جديد',
+      thumbnail: 'https://placehold.co/600x400/8b5cf6/ffffff?text=محاكي+كمي'
+    }
   ],
   verbal: [
-    { id: 1, title: 'التناظر اللفظي', progress: 90, totalLessons: 8, completed: 7 },
-    { id: 2, title: 'إكمال الجمل', progress: 60, totalLessons: 10, completed: 6 },
-    { id: 3, title: 'استيعاب المقروء', progress: 30, totalLessons: 12, completed: 3 },
+    {
+      id: 'c3',
+      title: 'التأسيس الشامل (لفظي) 2026',
+      instructor: 'أ. أحمد السالم',
+      rating: 4.9,
+      studentsCount: 2103,
+      lessonsCount: 40,
+      duration: '28 ساعة',
+      price: 299,
+      originalPrice: 450,
+      badge: 'الأكثر مبيعاً',
+      thumbnail: 'https://placehold.co/600x400/10b981/ffffff?text=لفظي'
+    }
   ],
   math: [
-    { id: 1, title: 'التفاضل والتكامل', progress: 50, totalLessons: 20, completed: 10 },
-    { id: 2, title: 'المصفوفات', progress: 10, totalLessons: 8, completed: 1 },
+    {
+      id: 'c4',
+      title: 'دورة الـ 100% (رياضيات تأسيس 2026)',
+      instructor: 'د. عمر الزهراني',
+      rating: 5.0,
+      studentsCount: 3241,
+      lessonsCount: 50,
+      duration: '40 ساعة',
+      price: 349,
+      originalPrice: 500,
+      badge: 'الأكثر تقييماً',
+      thumbnail: 'https://placehold.co/600x400/f59e0b/ffffff?text=رياضيات'
+    }
   ],
   physics: [
-    { id: 1, title: 'الميكانيكا', progress: 70, totalLessons: 15, completed: 10 },
-    { id: 2, title: 'الكهرباء', progress: 30, totalLessons: 12, completed: 4 },
+    {
+      id: 'c5',
+      title: 'فيزياء تحصيلي - المنهج الكامل',
+      instructor: 'د. فهد القحطاني',
+      rating: 4.8,
+      studentsCount: 1654,
+      lessonsCount: 42,
+      duration: '35 ساعة',
+      price: 329,
+      originalPrice: 450,
+      badge: null,
+      thumbnail: 'https://placehold.co/600x400/06b6d4/ffffff?text=فيزياء'
+    }
   ],
   chemistry: [
-    { id: 1, title: 'الكيمياء العضوية', progress: 40, totalLessons: 14, completed: 5 },
-    { id: 2, title: 'الروابط الكيميائية', progress: 20, totalLessons: 10, completed: 2 },
+    {
+      id: 'c6',
+      title: 'كيمياء تحصيلي - شرح شامل',
+      instructor: 'أ. نورة الدوسري',
+      rating: 4.7,
+      studentsCount: 1432,
+      lessonsCount: 38,
+      duration: '30 ساعة',
+      price: 299,
+      originalPrice: 420,
+      badge: null,
+      thumbnail: 'https://placehold.co/600x400/ec4899/ffffff?text=كيمياء'
+    }
   ],
   biology: [
-    { id: 1, title: 'علم الوراثة', progress: 60, totalLessons: 10, completed: 6 },
-    { id: 2, title: 'أجهزة الجسم', progress: 80, totalLessons: 12, completed: 10 },
-  ],
+    {
+      id: 'c7',
+      title: 'أحياء تحصيلي - التفوق المضمون',
+      instructor: 'د. سارة العنزي',
+      rating: 4.9,
+      studentsCount: 1876,
+      lessonsCount: 44,
+      duration: '36 ساعة',
+      price: 319,
+      originalPrice: 450,
+      badge: 'موصى به',
+      thumbnail: 'https://placehold.co/600x400/22c55e/ffffff?text=أحياء'
+    }
+  ]
 };
 
-export type QuestionBank = { id: number; title: string; questions: number; updated?: string };
-export const questionBanks: Record<string, QuestionBank[]> = {
+// Skills data
+export const skills: Record<string, Skill[]> = {
   quant: [
-    { id: 1, title: 'بنك أسئلة الجبر 2025', questions: 500, updated: '2025-01-10' },
-    { id: 2, title: 'تجميعات الهندسة', questions: 300, updated: '2025-01-15' },
+    { id: 's1', title: 'الجبر والمعادلات', progress: 75, lessonsCount: 12, videoLessons: [
+      { id: 'v1', title: 'مقدمة في الجبر', duration: '15:30', isLocked: false },
+      { id: 'v2', title: 'حل المعادلات الخطية', duration: '18:45', isLocked: false },
+      { id: 'v3', title: 'المعادلات التربيعية', duration: '22:10', isLocked: true }
+    ]},
+    { id: 's2', title: 'الهندسة والقياس', progress: 60, lessonsCount: 10, videoLessons: [
+      { id: 'v4', title: 'المثلثات', duration: '16:20', isLocked: false },
+      { id: 'v5', title: 'الدوائر', duration: '14:55', isLocked: true }
+    ]},
+    { id: 's3', title: 'الإحصاء والاحتمالات', progress: 45, lessonsCount: 8, videoLessons: [] },
+    { id: 's4', title: 'المنطق الرياضي', progress: 30, lessonsCount: 6, videoLessons: [] }
   ],
   verbal: [
-    { id: 1, title: 'بنك التناظر اللفظي', questions: 600, updated: '2025-01-12' },
-    { id: 2, title: 'تجميعات استيعاب المقروء', questions: 250, updated: '2025-01-18' },
+    { id: 's5', title: 'التناظر اللفظي', progress: 80, lessonsCount: 15, videoLessons: [
+      { id: 'v6', title: 'العلاقات المكانية', duration: '12:30', isLocked: false },
+      { id: 'v7', title: 'العلاقات السببية', duration: '14:20', isLocked: false }
+    ]},
+    { id: 's6', title: 'إكمال الجمل', progress: 65, lessonsCount: 12, videoLessons: [] },
+    { id: 's7', title: 'الخطأ السياقي', progress: 50, lessonsCount: 10, videoLessons: [] }
   ],
-  math: [{ id: 1, title: 'بنك الرياضيات الشامل', questions: 800, updated: '2025-01-20' }],
-  physics: [{ id: 1, title: 'بنك الفيزياء الحديثة', questions: 400, updated: '2025-01-22' }],
-  chemistry: [{ id: 1, title: 'بنك الكيمياء', questions: 450, updated: '2025-01-19' }],
-  biology: [{ id: 1, title: 'بنك الأحياء', questions: 550, updated: '2025-01-21' }],
+  math: [
+    { id: 's8', title: 'التفاضل والتكامل', progress: 70, lessonsCount: 18, videoLessons: [] },
+    { id: 's9', title: 'المتجهات والهندسة الفراغية', progress: 55, lessonsCount: 14, videoLessons: [] },
+    { id: 's10', title: 'المصفوفات', progress: 40, lessonsCount: 10, videoLessons: [] }
+  ],
+  physics: [
+    { id: 's11', title: 'الميكانيكا', progress: 68, lessonsCount: 16, videoLessons: [] },
+    { id: 's12', title: 'الكهرباء والمغناطيسية', progress: 52, lessonsCount: 14, videoLessons: [] },
+    { id: 's13', title: 'الضوء والأمواج', progress: 45, lessonsCount: 12, videoLessons: [] }
+  ],
+  chemistry: [
+    { id: 's14', title: 'الكيمياء العضوية', progress: 72, lessonsCount: 15, videoLessons: [] },
+    { id: 's15', title: 'الكيمياء الفيزيائية', progress: 60, lessonsCount: 13, videoLessons: [] }
+  ],
+  biology: [
+    { id: 's16', title: 'علم الوراثة', progress: 78, lessonsCount: 14, videoLessons: [] },
+    { id: 's17', title: 'التشريح والفسيولوجيا', progress: 63, lessonsCount: 16, videoLessons: [] }
+  ]
 };
 
-export type SimTest = { id: number; title: string; duration: string; questions: number };
-export const simTests: Record<string, SimTest[]> = {
+// Question Banks
+export const banks: Record<string, Bank[]> = {
   quant: [
-    { id: 1, title: 'اختبار محاكي كمي - نموذج 1', duration: '60 دقيقة', questions: 40 },
-    { id: 2, title: 'اختبار محاكي كمي - نموذج 2', duration: '60 دقيقة', questions: 40 },
+    { id: 'b1', title: 'بنك الأسئلة الكمي المتقدم', questionsCount: 850, updatedAt: '2025-01-20' },
+    { id: 'b2', title: 'تجميعات القدرات الكمي 5 سنوات', questionsCount: 1200, updatedAt: '2025-01-18' }
   ],
-  verbal: [{ id: 1, title: 'اختبار محاكي لفظي - نموذج 1', duration: '60 دقيقة', questions: 40 }],
-  math: [{ id: 1, title: 'اختبار تحصيلي رياضيات', duration: '60 دقيقة', questions: 40 }],
-  physics: [{ id: 1, title: 'اختبار تحصيلي فيزياء', duration: '60 دقيقة', questions: 40 }],
-  chemistry: [{ id: 1, title: 'اختبار تحصيلي كيمياء', duration: '60 دقيقة', questions: 40 }],
-  biology: [{ id: 1, title: 'اختبار تحصيلي أحياء', duration: '60 دقيقة', questions: 40 }],
+  verbal: [
+    { id: 'b3', title: 'بنك اللفظي الشامل', questionsCount: 920, updatedAt: '2025-01-19' },
+    { id: 'b4', title: 'تجميعات اللفظي 5 سنوات', questionsCount: 1100, updatedAt: '2025-01-17' }
+  ],
+  math: [
+    { id: 'b5', title: 'بنك الرياضيات', questionsCount: 1500, updatedAt: '2025-01-22' }
+  ],
+  physics: [
+    { id: 'b6', title: 'بنك الفيزياء', questionsCount: 980, updatedAt: '2025-01-21' }
+  ],
+  chemistry: [
+    { id: 'b7', title: 'بنك الكيمياء', questionsCount: 890, updatedAt: '2025-01-20' }
+  ],
+  biology: [
+    { id: 'b8', title: 'بنك الأحياء', questionsCount: 1050, updatedAt: '2025-01-19' }
+  ]
 };
 
-export type PackageItem = { id: string; title: string; price: number; originalPrice: number; features: string[]; color: string; popular?: boolean };
-export const qudratPackages: PackageItem[] = [
-  {
-    id: 'p1',
-    title: 'الباقة الشاملة (قدرات)',
-    price: 399,
-    originalPrice: 500,
-    features: ['جميع دورات الكمي واللفظي', 'بنك أسئلة مفتوح', 'اختبارات محاكية لا محدودة', 'جلسات بث مباشر'],
-    color: 'bg-indigo-600',
-    popular: true,
-  },
-  {
-    id: 'p2',
-    title: 'باقة التأسيس',
-    price: 250,
-    originalPrice: 350,
-    features: ['دورة التأسيس كمي', 'دورة التأسيس لفظي', '5 اختبارات محاكية'],
-    color: 'bg-blue-500',
-  },
-  {
-    id: 'p3',
-    title: 'باقة المحاكي',
-    price: 99,
-    originalPrice: 150,
-    features: ['20 اختبار محاكي', 'تحليل نقاط الضعف بالذكاء الاصطناعي'],
-    color: 'bg-emerald-500',
-  },
-];
-
-export const tahsiliPackages: PackageItem[] = [
-  {
-    id: 'tp1',
-    title: 'الباقة الشاملة (تحصيلي)',
-    price: 499,
-    originalPrice: 650,
-    features: ['جميع المواد العلمية', 'بنك أسئلة شامل', 'تجميعات 5 سنوات', 'حصص مباشرة أسبوعية'],
-    color: 'bg-emerald-600',
-    popular: true,
-  },
-  {
-    id: 'tp2',
-    title: 'باقة المواد العلمية',
-    price: 299,
-    originalPrice: 400,
-    features: ['اختر مادتين (مثل فيزياء + كيمياء)', 'بنك أسئلة للمادتين', '10 اختبارات محاكية'],
-    color: 'bg-teal-500',
-  },
-  {
-    id: 'tp3',
-    title: 'باقة المراجعة النهائية',
-    price: 150,
-    originalPrice: 200,
-    features: ['ملخصات مكثفة', 'أهم 500 سؤال', 'اختبار تجريبي شامل'],
-    color: 'bg-cyan-500',
-  },
-];
-
-export type VideoLesson = { id: string; title: string; duration: string; url: string };
-export const videoLessons: Record<string, VideoLesson[]> = {
-  '1': [
-    { id: 'v1', title: 'مقدمة في الحساب', duration: '10:00', url: 'https://www.youtube.com/embed/e6rglsLy1Ys' },
-    { id: 'v2', title: 'الجمع والطرح الذهني', duration: '15:30', url: 'https://www.youtube.com/embed/M5QGkOGZubQ' },
+// Simulation Tests
+export const tests: Record<string, Test[]> = {
+  quant: [
+    { id: 't1', title: 'اختبار محاكي كمي - نموذج 1', questionsCount: 40, duration: '60 دقيقة' },
+    { id: 't2', title: 'اختبار محاكي كمي - نموذج 2', questionsCount: 40, duration: '60 دقيقة' },
+    { id: 't3', title: 'اختبار محاكي كمي - نموذج 3', questionsCount: 40, duration: '60 دقيقة' }
   ],
-  '2': [{ id: 'v3', title: 'حل المعادلات من الدرجة الأولى', duration: '12:00', url: 'https://www.youtube.com/embed/e6rglsLy1Ys' }],
+  verbal: [
+    { id: 't4', title: 'اختبار محاكي لفظي - نموذج 1', questionsCount: 40, duration: '60 دقيقة' },
+    { id: 't5', title: 'اختبار محاكي لفظي - نموذج 2', questionsCount: 40, duration: '60 دقيقة' }
+  ],
+  math: [
+    { id: 't6', title: 'اختبار تحصيلي رياضيات - نموذج 1', questionsCount: 50, duration: '90 دقيقة' },
+    { id: 't7', title: 'اختبار تحصيلي رياضيات - نموذج 2', questionsCount: 50, duration: '90 دقيقة' }
+  ],
+  physics: [
+    { id: 't8', title: 'اختبار تحصيلي فيزياء', questionsCount: 50, duration: '90 دقيقة' }
+  ],
+  chemistry: [
+    { id: 't9', title: 'اختبار تحصيلي كيمياء', questionsCount: 50, duration: '90 دقيقة' }
+  ],
+  biology: [
+    { id: 't10', title: 'اختبار تحصيلي أحياء', questionsCount: 50, duration: '90 دقيقة' }
+  ]
 };
 
-export const tahsiliSubjects = [
-  { id: 'math', label: 'الرياضيات', color: 'from-blue-500 to-blue-700', subtitle: 'تفاضل، تكامل، جبر' },
-  { id: 'physics', label: 'الفيزياء', color: 'from-orange-500 to-orange-700', subtitle: 'ميكانيكا، كهرباء، حديثة' },
-  { id: 'chemistry', label: 'الكيمياء', color: 'from-purple-500 to-purple-700', subtitle: 'عضوية، تحليلية، نووية' },
-  { id: 'biology', label: 'الأحياء', color: 'from-emerald-500 to-emerald-700', subtitle: 'نبات، حيوان، وراثة' },
-];
-
-export const qudratTabs = [
-  { key: 'courses', label: 'الدورات', icon: MonitorPlay },
-  { key: 'skills', label: 'المهارات (فيديو)', icon: BookOpen },
-  { key: 'banks', label: 'أحدث البنوك', icon: FileText },
-  { key: 'tests', label: 'الاختبارات المحاكية', icon: FileText },
-] as const;
-
-export const tahsiliTabs = [
-  { key: 'courses', label: 'الدورات', icon: MonitorPlay },
-  { key: 'skills', label: 'المهارات', icon: BookOpen },
-  { key: 'banks', label: 'بنوك الأسئلة', icon: FileText },
-  { key: 'tests', label: 'اختبارات محاكية', icon: FileText },
-] as const;
+// Packages
+export const packages: { qudrat: Package[]; tahsili: Package[] } = {
+  qudrat: [
+    {
+      id: 'p1',
+      title: 'الباقة الشاملة (قدرات)',
+      price: 399,
+      originalPrice: 550,
+      features: ['كمي + لفظي كاملين', 'بنك أسئلة شامل', '15 اختبار محاكي', 'حصص مباشرة'],
+      colorClass: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+      isPopular: true
+    },
+    {
+      id: 'p2',
+      title: 'باقة الكمي',
+      price: 249,
+      originalPrice: 350,
+      features: ['دورة كمي كاملة', 'بنك 850 سؤال', '8 اختبارات محاكية'],
+      colorClass: 'bg-gradient-to-br from-purple-500 to-pink-600',
+      isPopular: false
+    },
+    {
+      id: 'p3',
+      title: 'باقة المحاكي',
+      price: 99,
+      originalPrice: 150,
+      features: ['20 اختبار محاكي', 'تحليل نقاط الضعف بالذكاء الاصطناعي'],
+      colorClass: 'bg-gradient-to-br from-emerald-500 to-teal-600',
+      isPopular: false
+    }
+  ],
+  tahsili: [
+    {
+      id: 'tp1',
+      title: 'الباقة الشاملة (تحصيلي)',
+      price: 499,
+      originalPrice: 650,
+      features: ['جميع المواد (رياضيات، فيزياء، كيمياء، أحياء)', 'بنك أسئلة شامل', 'تجميعات 5 سنوات', 'حصص مباشرة أسبوعية'],
+      colorClass: 'bg-gradient-to-br from-emerald-600 to-cyan-600',
+      isPopular: true
+    },
+    {
+      id: 'tp2',
+      title: 'باقة المواد العلمية',
+      price: 299,
+      originalPrice: 400,
+      features: ['اختر مادتين (مثل فيزياء + كيمياء)', 'بنك أسئلة للمادتين', '10 اختبارات محاكية'],
+      colorClass: 'bg-gradient-to-br from-teal-500 to-green-600',
+      isPopular: false
+    },
+    {
+      id: 'tp3',
+      title: 'باقة المراجعة النهائية',
+      price: 150,
+      originalPrice: 200,
+      features: ['ملخصات مكثفة', 'أهم 500 سؤال', 'اختبار تجريبي شامل'],
+      colorClass: 'bg-gradient-to-br from-cyan-500 to-blue-600',
+      isPopular: false
+    }
+  ]
+};

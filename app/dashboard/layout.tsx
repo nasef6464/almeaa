@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { LayoutDashboard, Users, BookOpen, FileText, Settings, Grid, Shield, GraduationCap } from 'lucide-react';
 import DashboardShell from './dashboard-shell';
+import { StudentSidebar } from '@/components/dashboard/StudentSidebar';
 
 type NavItem = {
   label: string;
@@ -66,6 +67,20 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const role = session.user.role || 'STUDENT';
   const navItems = navByRole[role] || navByRole.STUDENT;
+  const isStudent = role === 'STUDENT';
+
+  if (isStudent) {
+    return (
+      <div className="min-h-screen bg-gray-50" dir="rtl">
+        <DashboardShell userName={session.user.name || 'مستخدم'} userRole={role} navItems={navItems}>
+          <div className="flex">
+            <StudentSidebar />
+            <main className="flex-1 p-6">{children}</main>
+          </div>
+        </DashboardShell>
+      </div>
+    );
+  }
 
   return <DashboardShell userName={session.user.name || 'مستخدم'} userRole={role} navItems={navItems}>{children}</DashboardShell>;
 }

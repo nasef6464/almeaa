@@ -32,9 +32,6 @@
   ],
   "exclude": [
     "node_modules",
-    "almeaago/**/*",
-    "prisma/seed.ts",
-    "prisma/seed-*.ts",
-    "scripts/**/*"
+    "almeaago/**/*"
   ]
 }
