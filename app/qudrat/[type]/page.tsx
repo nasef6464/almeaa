@@ -22,8 +22,9 @@ const subtitles: Record<string, string> = {
   packages: 'قسم باقات القدرات'
 };
 
-export default async function QudratPage({ params }: { params: { type: string } }) {
-  const type = params.type as QudratType;
+export default async function QudratPage({ params }: { params: Promise<{ type: string }> }) {
+  const { type: typeParam } = await params;
+  const type = typeParam as QudratType;
 
   if (type === 'packages') {
     const packages = await prisma.catalogPackage.findMany({
@@ -46,8 +47,11 @@ export default async function QudratPage({ params }: { params: { type: string } 
       <div className="bg-gray-50 min-h-screen pb-20" dir="rtl">
         <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-            <h1 className="text-4xl font-bold mb-2">{titles[type]}</h1>
-            <p className="text-lg text-blue-100">اختر الباقة المناسبة لك واحصل على أفضل الأسعار</p>
+            <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+              <span>📦</span>
+              <span>{titles[type]}</span>
+            </h1>
+            <p className="text-lg text-blue-100">{subtitles[type] || 'اختر الباقة المناسبة لك واحصل على أفضل الأسعار'}</p>
           </div>
         </header>
         <PackagesContent packages={formattedPackages} type="qudrat" />
