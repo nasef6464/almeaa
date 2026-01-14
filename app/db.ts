@@ -16,22 +16,40 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Create connection pool and adapter
-const connectionString = process.env.DATABASE_URL || '';
-const pool = new Pool({ 
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false
+// Create Prisma Client instance
+let prisma: PrismaClient;
+
+if (process.env.NODE_ENV === 'production') {
+  // In production (Vercel), use adapter with connection pool
+  const connectionString = process.env.DATABASE_URL || '';
+  
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set');
   }
-});
-const adapter = new PrismaPg(pool);
-
-// Create the Prisma Client instance
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
-
-// In development, save the instance to prevent hot reload issues
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+  
+  const pool = new Pool({ 
+    connectionString,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+} else {
+  // In development, reuse existing instance
+  if (!globalForPrisma.prisma) {
+    const connectionString = process.env.DATABASE_URL || '';
+    const pool = new Pool({ 
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+    const adapter = new PrismaPg(pool);
+    globalForPrisma.prisma = new PrismaClient({ adapter });
+  }
+  prisma = globalForPrisma.prisma;
 }
 
+export { prisma };
 export default prisma;
