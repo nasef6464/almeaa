@@ -18,29 +18,38 @@ export default function AdminLoginPage() {
     setError('');
     setIsLoading(true);
 
-    // حسابات تجريبية
-    const accounts = [
-      { email: 'admin@almeaa.com', password: 'Admin@123', role: 'admin' },
-      { email: 'manager@almeaa.com', password: 'Manager@123', role: 'manager' },
-    ];
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const account = accounts.find(acc => acc.email === email && acc.password === password);
+      const data = await response.json();
 
-    if (account) {
-      // حفظ بيانات المستخدم في localStorage
-      localStorage.setItem('user', JSON.stringify({ email, role: account.role }));
-      
-      // التوجيه حسب الدور
-      if (account.role === 'admin') {
-        router.push('/dashboard/admin/catalog/courses');
+      if (response.ok && data.success) {
+        // حفظ بيانات المستخدم في localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // التوجيه حسب الدور
+        if (data.user.role === 'SUPER_ADMIN' || data.user.role === 'ADMIN') {
+          router.push('/dashboard/admin/catalog/courses');
+        } else if (data.user.role === 'TRAINER') {
+          router.push('/dashboard/trainer');
+        } else if (data.user.role === 'STUDENT') {
+          router.push('/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
-        router.push('/dashboard');
+        setError(data.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
       }
-    } else {
-      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -131,12 +140,12 @@ export default function AdminLoginPage() {
             <div className="bg-white p-3 rounded border border-blue-200">
               <p className="font-medium text-blue-800 mb-1">👨‍💼 المدير العام</p>
               <p><span className="font-semibold">البريد:</span> admin@almeaa.com</p>
-              <p><span className="font-semibold">كلمة المرور:</span> Admin@123</p>
+              <p><span className="font-semibold">كلمة المرور:</span> almeaa2026</p>
             </div>
             <div className="bg-white p-3 rounded border border-blue-200">
-              <p className="font-medium text-blue-800 mb-1">👤 مدير المحتوى</p>
-              <p><span className="font-semibold">البريد:</span> manager@almeaa.com</p>
-              <p><span className="font-semibold">كلمة المرور:</span> Manager@123</p>
+              <p className="font-medium text-blue-800 mb-1">👨‍🏫 المدرب</p>
+              <p><span className="font-semibold">البريد:</span> trainer@almeaa.com</p>
+              <p><span className="font-semibold">كلمة المرور:</span> trainer2026</p>
             </div>
           </div>
         </div>
