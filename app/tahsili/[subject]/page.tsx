@@ -21,10 +21,11 @@ const titles: Record<TahsiliSubject, string> = {
 };
 
 const subtitles: Record<string, string> = {
-  math: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
-  physics: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
-  chemistry: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
-  biology: 'تأسيس شامل، شرح مفصل، واختبارات محاكية',
+  math: 'قسم التحصيلي - الرياضيات',
+  physics: 'قسم التحصيلي - الفيزياء',
+  chemistry: 'قسم التحصيلي - الكيمياء',
+  biology: 'قسم التحصيلي - الأحياء',
+  offers: 'قسم عروض التحصيلي'
 };
 
 const icons: Record<string, string> = {

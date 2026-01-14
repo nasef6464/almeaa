@@ -17,8 +17,9 @@ const titles: Record<QudratType, string> = {
 };
 
 const subtitles: Record<string, string> = {
-  quant: 'تأسيس شامل، تدريب مكثف، واختبارات محاكية',
-  verbal: 'تأسيس شامل، تدريب مكثف، واختبارات محاكية',
+  quant: 'قسم القدرات الكمي',
+  verbal: 'قسم القدرات اللفظي',
+  packages: 'قسم باقات القدرات'
 };
 
 export default async function QudratPage({ params }: { params: { type: string } }) {
