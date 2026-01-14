@@ -47,10 +47,10 @@ export function SiteHeader() {
               onMouseEnter={() => setActiveDropdown('qudrat')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className="flex items-center gap-2 text-gray-700 font-bold hover:text-amber-500 transition-colors text-sm">
+              <Link href="/qudrat" className="flex items-center gap-2 text-gray-700 font-bold hover:text-amber-500 transition-colors text-sm">
                 {navItems.qudrat.label}
                 <ChevronDown size={14} />
-              </button>
+              </Link>
               
               {activeDropdown === 'qudrat' && (
                 <div className="absolute top-full right-0 w-56 bg-white shadow-xl rounded-b-xl border-t-2 border-amber-500 py-2 animate-fade-in">
@@ -73,10 +73,10 @@ export function SiteHeader() {
               onMouseEnter={() => setActiveDropdown('tahsili')}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <button className="flex items-center gap-2 text-gray-700 font-bold hover:text-amber-500 transition-colors text-sm">
+              <Link href="/tahsili" className="flex items-center gap-2 text-gray-700 font-bold hover:text-amber-500 transition-colors text-sm">
                 {navItems.tahsili.label}
                 <ChevronDown size={14} />
-              </button>
+              </Link>
               
               {activeDropdown === 'tahsili' && (
                 <div className="absolute top-full right-0 w-56 bg-white shadow-xl rounded-b-xl border-t-2 border-amber-500 py-2 animate-fade-in">
