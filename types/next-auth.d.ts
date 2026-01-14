@@ -1,5 +1,5 @@
 import 'next-auth';
-import type { Parent, SchoolAdmin, Student, Supervisor, Trainer } from '@/app/generated/prisma';
+import type { Parent, SchoolAdmin, Student, Supervisor, Trainer } from '@prisma/client';
 
 declare module 'next-auth' {
   interface User {

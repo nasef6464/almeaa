@@ -9,7 +9,7 @@
  */
 
 import { prisma } from '@/app/db';
-import { ContentStatus } from '@/app/generated/prisma';
+import { ContentStatus } from '@prisma/client';
 
 export class SkillService {
   /**

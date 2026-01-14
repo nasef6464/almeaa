@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -623,4 +622,119 @@ model Coupon {
   @@index([code, isActive])
   @@index([validUntil])
   @@map("coupons")
+}
+
+// =============================================================================
+// CATALOG MODELS
+// =============================================================================
+
+enum CatalogCategory {
+  QUDRAT_QUANT
+  QUDRAT_VERBAL
+  TAHSILI_MATH
+  TAHSILI_PHYSICS
+  TAHSILI_CHEMISTRY
+  TAHSILI_BIOLOGY
+}
+
+enum PackageType {
+  QUDRAT
+  TAHSILI
+}
+
+model CatalogCourse {
+  id          String          @id @default(cuid())
+  category    CatalogCategory
+  title       String
+  instructor  String
+  rating      Float
+  studentsCount Int
+  price       Float
+  oldPrice    Float?
+  badge       String?
+  imageUrl    String?
+  isPublished Boolean         @default(true)
+  order       Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([category, isPublished])
+  @@map("catalog_courses")
+}
+
+model CatalogSkill {
+  id           String             @id @default(cuid())
+  category     CatalogCategory
+  title        String
+  progress     Int                @default(0)
+  isPublished  Boolean            @default(true)
+  order        Int                @default(0)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  videoLessons CatalogVideoLesson[]
+
+  @@index([category, isPublished])
+  @@map("catalog_skills")
+}
+
+model CatalogVideoLesson {
+  id        String  @id @default(cuid())
+  skillId   String
+  title     String
+  duration  String
+  isLocked  Boolean @default(false)
+  order     Int     @default(0)
+
+  skill CatalogSkill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@index([skillId])
+  @@map("catalog_video_lessons")
+}
+
+model CatalogQuestionBank {
+  id             String          @id @default(cuid())
+  category       CatalogCategory
+  title          String
+  questionsCount Int
+  isPublished    Boolean         @default(true)
+  order          Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([category, isPublished])
+  @@map("catalog_question_banks")
+}
+
+model CatalogSimTest {
+  id             String          @id @default(cuid())
+  category       CatalogCategory
+  title          String
+  questionsCount Int
+  duration       String
+  isPublished    Boolean         @default(true)
+  order          Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([category, isPublished])
+  @@map("catalog_sim_tests")
+}
+
+model CatalogPackage {
+  id          String      @id @default(cuid())
+  type        PackageType
+  title       String
+  price       Float
+  oldPrice    Float?
+  features    Json
+  isPopular   Boolean     @default(false)
+  colorClass  String?
+  isPublished Boolean     @default(true)
+  order       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([type, isPublished])
+  @@map("catalog_packages")
 }

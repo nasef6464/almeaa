@@ -16,6 +16,26 @@
       "type": "shell",
       "command": "git add . && git commit -m \"update: $(Get-Date -Format 'HH:mm')\" && git push",
       "problemMatcher": []
+    },
+    {
+      "label": "Deploy to Vercel (Production)",
+      "type": "shell",
+      "command": "vercel --prod",
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Deploy to Vercel (Preview)",
+      "type": "shell",
+      "command": "vercel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Vercel Dev",
+      "type": "shell",
+      "command": "vercel dev",
+      "isBackground": true,
+      "problemMatcher": []
     }
   ],
   "inputs": [

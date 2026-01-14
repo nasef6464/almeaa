@@ -33,9 +33,9 @@ export default async function QudratPage({ params }: { params: { type: string } 
     const formattedPackages = packages.map(pkg => ({
       id: pkg.id,
       title: pkg.title,
-      description: pkg.description,
+      description: '', // Default description
       price: pkg.price,
-      originalPrice: pkg.originalPrice,
+      originalPrice: pkg.oldPrice || null,
       features: Array.isArray(pkg.features) ? pkg.features as string[] : [],
       isPopular: pkg.isPopular,
       colorClass: pkg.colorClass || ''
@@ -86,22 +86,22 @@ export default async function QudratPage({ params }: { params: { type: string } 
     instructor: course.instructor,
     rating: course.rating,
     studentsCount: course.studentsCount,
-    lessonsCount: course.lessonsCount,
-    duration: String(course.duration || '0 ساعة'),
+    lessonsCount: 0,
+    duration: '0 ساعة',
     price: course.price,
-    originalPrice: course.originalPrice,
-    badge: course.badge
+    originalPrice: course.oldPrice || null,
+    badge: course.badge || null
   }));
 
   const formattedSkills = skills.map(skill => ({
     id: skill.id,
     title: skill.title,
     progress: skill.progress,
-    lessonsCount: skill.lessonsCount,
+    lessonsCount: skill.videoLessons.length,
     videoLessons: skill.videoLessons.map(v => ({
       id: v.id,
       title: v.title,
-      duration: String(v.duration || '0:00'),
+      duration: v.duration,
       isLocked: v.isLocked,
       order: v.order
     }))

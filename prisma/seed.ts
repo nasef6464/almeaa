@@ -6,7 +6,7 @@
  * This script populates the database with initial data for development.
  */
 
-import { PrismaClient, UserRole } from '../app/generated/prisma';
+import { PrismaClient, UserRole } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

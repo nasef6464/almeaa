@@ -8,8 +8,8 @@
  */
 
 import { prisma } from '@/app/db';
-import { DifficultyLevel, QuestionType, TestType } from '@/app/generated/prisma';
-import type { Prisma, Question } from '@/app/generated/prisma';
+import { DifficultyLevel, QuestionType, TestType } from '@prisma/client';
+import type { Prisma, Question } from '@prisma/client';
 import { SkillService } from './skill.service';
 
 export class TestService {

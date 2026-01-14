@@ -2,7 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/app/db';
-import { UserRole } from '@/app/generated/prisma';
+import { UserRole } from '@prisma/client';
 import { Users, Shield, GraduationCap, BookOpen, Sparkles } from 'lucide-react';
 
 const adminRoles: UserRole[] = [UserRole.SUPER_ADMIN, UserRole.SCHOOL_ADMIN, UserRole.ADMIN];
