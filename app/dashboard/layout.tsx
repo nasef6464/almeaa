@@ -68,11 +68,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const role = session.user.role || 'STUDENT';
   const navItems = navByRole[role] || navByRole.STUDENT;
   const isStudent = role === 'STUDENT';
+  
+  // Get user avatar (use default if not set)
+  const userAvatar = session.user.image || session.user.avatar || '/images/default-avatar.png';
+  const userName = session.user.name || 'مستخدم';
+  const userEmail = session.user.email || '';
 
   if (isStudent) {
     return (
       <div className="min-h-screen bg-gray-50" dir="rtl">
-        <DashboardShell userName={session.user.name || 'مستخدم'} userRole={role} navItems={navItems}>
+        <DashboardShell userName={userName} userRole={role} navItems={navItems}>
           <div className="flex">
             <StudentSidebar />
             <main className="flex-1 p-6">{children}</main>
@@ -82,5 +87,41 @@ export default async function DashboardLayout({ children }: { children: React.Re
     );
   }
 
-  return <DashboardShell userName={session.user.name || 'مستخدم'} userRole={role} navItems={navItems}>{children}</DashboardShell>;
+  return (
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <DashboardShell userName={userName} userRole={role} navItems={navItems}>
+        {/* User Profile Card */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img 
+                src={userAvatar} 
+                alt={userName}
+                className="w-20 h-20 rounded-full object-cover border-4 border-blue-100"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName) + '&background=3b82f6&color=fff&size=200';
+                }}
+              />
+              <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900">مرحباً، {userName}</h2>
+              <p className="text-gray-500 text-sm">{userEmail}</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {role === 'ADMIN' ? 'مدير النظام' : 
+                   role === 'SUPER_ADMIN' ? 'المدير العام' :
+                   role === 'SCHOOL_ADMIN' ? 'مدير المدرسة' :
+                   role === 'TRAINER' ? 'مدرب' :
+                   role === 'SUPERVISOR' ? 'مشرف' :
+                   role === 'PARENT' ? 'ولي أمر' : 'طالب'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {children}
+      </DashboardShell>
+    </div>
+  );
 }
