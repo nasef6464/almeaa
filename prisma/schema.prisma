@@ -236,8 +236,9 @@ model Category {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  subject  Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subject  Subject          @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   sections Section[]
+  modules  SectionModule[]
 
   @@unique([subjectId, name])
   @@index([subjectId, status])
@@ -737,4 +738,66 @@ model CatalogPackage {
 
   @@index([type, isPublished])
   @@map("catalog_packages")
+}
+
+// =============================================================================
+// CMS MODULES SYSTEM
+// =============================================================================
+
+enum ModuleType {
+  COURSES
+  QUESTION_BANK
+  SKILLS
+  MOCK_TESTS
+  PAST_PAPERS
+  DOWNLOADS
+  FLASHCARDS
+}
+
+model SectionModule {
+  id          String       @id @default(cuid())
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  type        ModuleType
+  icon        String?
+  color       String?
+  order       Int          @default(0)
+  isVisible   Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  items ModuleItem[]
+
+  @@index([categoryId, type])
+  @@map("section_modules")
+}
+
+model ModuleItem {
+  id          String        @id @default(cuid())
+  moduleId    String
+  module      SectionModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  
+  // For downloads/past papers
+  fileUrl     String?
+  fileName    String?
+  fileSize    String?
+  
+  // For video content
+  videoUrl    String?
+  duration    String?
+  
+  // For flashcards
+  frontText   String?
+  backText    String?
+  
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([moduleId])
+  @@map("module_items")
 }
