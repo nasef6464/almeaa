@@ -1,12 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../app/db';
 
 async function main() {
   console.log('🚀 Starting CMS Seeding...\n');
 
-  // Find the math category
-  const mathCategory = await prisma.category.findFirst({
+  // Find or create the math category
+  let mathCategory = await prisma.category.findFirst({
     where: {
       name: {
         contains: 'رياضيات'
@@ -18,7 +16,7 @@ async function main() {
     console.log('⚠️ No math category found. Creating one...');
     const subject = await prisma.subject.findFirst();
     if (subject) {
-      const newCategory = await prisma.category.create({
+      mathCategory = await prisma.category.create({
         data: {
           subjectId: subject.id,
           name: 'الرياضيات',
@@ -26,14 +24,21 @@ async function main() {
           order: 1
         }
       });
-      console.log('✅ Math category created:', newCategory.name);
+      console.log('✅ Math category created:', mathCategory.name);
     } else {
       console.log('❌ No subject found, cannot create category');
       return;
     }
   }
 
-  const categoryId = mathCategory?.id || '';
+  if (!mathCategory) {
+    console.log('❌ Failed to get or create math category');
+    return;
+  }
+
+  console.log('📌 Using category:', mathCategory.name, '(ID:', mathCategory.id + ')');
+
+  const categoryId = mathCategory.id;
 
   // 1. Create Flashcards Module
   console.log('\n📇 Creating Flashcards Module...');
