@@ -18,22 +18,38 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
+      console.log('🔐 Attempting login with:', email);
+      
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       });
 
+      console.log('📊 Login result:', result);
+
       if (result?.error) {
-        setError('Invalid email or password');
+        console.error('❌ Login error:', result.error);
+        setError('Invalid email or password: ' + result.error);
         setLoading(false);
         return;
       }
 
-      router.push('/dashboard');
-      router.refresh();
-    } catch {
-      setError('An error occurred. Please try again.');
+      if (result?.ok) {
+        console.log('✅ Login successful, redirecting...');
+        setError('');
+        // Force a small delay to ensure session is set
+        await new Promise(resolve => setTimeout(resolve, 500));
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        console.warn('⚠️ Login result not OK:', result);
+        setError('Login failed. Please try again.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('💥 Exception during login:', err);
+      setError('An error occurred. Please try again. Check console for details.');
       setLoading(false);
     }
   };
@@ -97,6 +113,9 @@ export default function SignInPage() {
           <p className="font-mono text-xs mt-2">
             <strong>Email:</strong> student@example.com<br />
             <strong>Password:</strong> student123
+          </p>
+          <p className="mt-2 text-xs text-blue-600">
+            💡 Open browser console (F12) to see login details
           </p>
         </div>
 
