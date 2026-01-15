@@ -38,10 +38,13 @@ export default function SignInPage() {
       if (result?.ok) {
         console.log('✅ Login successful, redirecting...');
         setError('');
-        // Force a small delay to ensure session is set
-        await new Promise(resolve => setTimeout(resolve, 500));
-        router.push('/dashboard');
-        router.refresh();
+        
+        // Force immediate redirect using window.location
+        console.log('🔄 Redirecting to dashboard...');
+        window.location.href = '/dashboard';
+        
+        // Keep loading state true to prevent button re-enable
+        return;
       } else {
         console.warn('⚠️ Login result not OK:', result);
         setError('Login failed. Please try again.');
