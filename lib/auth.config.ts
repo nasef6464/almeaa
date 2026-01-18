@@ -3,6 +3,7 @@ import type { NextAuthConfig } from 'next-auth';
 export const authConfig: NextAuthConfig = {
   trustHost: true,
   useSecureCookies: false,
+  skipCSRFCheck: process.env.NODE_ENV !== 'production',
   pages: {
     signIn: '/auth/signin',
     signOut: '/auth/signout',

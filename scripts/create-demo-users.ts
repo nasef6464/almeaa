@@ -26,7 +26,12 @@ async function main() {
     // 1. Create Admin
     const admin = await prisma.user.upsert({
       where: { email: 'admin@test.com' },
-      update: {},
+      update: {
+        password: adminPassword,
+        role: 'ADMIN',
+        isActive: true,
+        emailVerified: new Date(),
+      },
       create: {
         email: 'admin@test.com',
         name: 'مدير النظام',
@@ -41,7 +46,12 @@ async function main() {
     // 2. Create Student
     const studentUser = await prisma.user.upsert({
       where: { email: 'student@test.com' },
-      update: {},
+      update: {
+        password: studentPassword,
+        role: 'STUDENT',
+        isActive: true,
+        emailVerified: new Date(),
+      },
       create: {
         email: 'student@test.com',
         name: 'محمد أحمد',
@@ -65,7 +75,12 @@ async function main() {
     // 3. Create Trainer
     const trainer = await prisma.user.upsert({
       where: { email: 'trainer@test.com' },
-      update: {},
+      update: {
+        password: trainerPassword,
+        role: 'TRAINER',
+        isActive: true,
+        emailVerified: new Date(),
+      },
       create: {
         email: 'trainer@test.com',
         name: 'أستاذ علي',
@@ -80,7 +95,12 @@ async function main() {
     // 4. Create Parent
     const parent = await prisma.user.upsert({
       where: { email: 'parent@test.com' },
-      update: {},
+      update: {
+        password: parentPassword,
+        role: 'PARENT',
+        isActive: true,
+        emailVerified: new Date(),
+      },
       create: {
         email: 'parent@test.com',
         name: 'ولي أمر',

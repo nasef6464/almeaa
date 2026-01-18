@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { Suspense, useEffect, useState } from 'react';
+import { signIn, getCsrfToken } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -12,8 +12,14 @@ function SignInForm() {
   
   const [email, setEmail] = useState('admin@test.com');
   const [password, setPassword] = useState('admin123');
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Ensure we have a CSRF token before attempting sign-in
+  useEffect(() => {
+    getCsrfToken().then((token) => setCsrfToken(token ?? null)).catch(() => setCsrfToken(null));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +34,7 @@ function SignInForm() {
         password,
         callbackUrl,
         redirect: false,
+        csrfToken: csrfToken ?? undefined,
       });
 
       // إذا فشل تسجيل الدخول
@@ -143,6 +150,15 @@ function SignInForm() {
         </div>
 
         <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+              Create Account
+            </Link>
+          </p>
+        </div>
+
+        <div className="mt-4 text-center">
           <Link href="/" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
             ← Back to Home
           </Link>
