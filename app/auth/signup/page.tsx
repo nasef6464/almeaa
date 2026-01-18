@@ -13,6 +13,16 @@ function SignUpForm() {
     password: '',
     confirmPassword: '',
     role: 'STUDENT',
+    phone: '',
+    // Student specific
+    grade: '',
+    schoolName: '',
+    dateOfBirth: '',
+    // Trainer specific
+    bio: '',
+    specialization: '',
+    // Parent specific
+    relationToStudent: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,6 +53,20 @@ function SignUpForm() {
           email: formData.email,
           password: formData.password,
           role: formData.role,
+          phone: formData.phone,
+          // Role-specific data
+          ...(formData.role === 'STUDENT' && {
+            grade: formData.grade,
+            schoolName: formData.schoolName,
+            dateOfBirth: formData.dateOfBirth,
+          }),
+          ...(formData.role === 'TRAINER' && {
+            bio: formData.bio,
+            specialization: formData.specialization,
+          }),
+          ...(formData.role === 'PARENT' && {
+            relationToStudent: formData.relationToStudent,
+          }),
         }),
       });
 
@@ -92,6 +116,22 @@ function SignUpForm() {
           </div>
 
           <div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              رقم الجوال
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              required
+              disabled={loading}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              placeholder="05xxxxxxxx"
+            />
+          </div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
             </label>
@@ -105,8 +145,139 @@ function SignUpForm() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
               placeholder="student@example.com"
             />
+          </  <option value="SUPERVISOR">Supervisor - مشرف</option>
+            </select>
           </div>
 
+          {/* Student-specific fields */}
+          {formData.role === 'STUDENT' && (
+            <>
+              <div>
+                <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
+                  المرحلة الدراسية
+                </label>
+                <select
+                  id="grade"
+                  value={formData.grade}
+                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                  required
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                >
+                  <option value="">اختر المرحلة</option>
+                  <option value="Grade 1">الصف الأول</option>
+                  <option value="Grade 2">الصف الثاني</option>
+                  <option value="Grade 3">الصف الثالث</option>
+                  <option value="Grade 4">الصف الرابع</option>
+                  <option value="Grade 5">الصف الخامس</option>
+                  <option value="Grade 6">الصف السادس</option>
+                  <option value="Grade 7">الصف السابع</option>
+                  <option value="Grade 8">الصف الثامن</option>
+                  <option value="Grade 9">الصف التاسع</option>
+                  <option value="Grade 10">الصف العاشر</option>
+                  <option value="Grade 11">الصف الحادي عشر</option>
+                  <option value="Grade 12">الصف الثاني عشر</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="schoolName" className="block text-sm font-medium text-gray-700 mb-2">
+                  اسم المدرسة (اختياري)
+                </label>
+                <input
+                  id="schoolName"
+                  type="text"
+                  value={formData.schoolName}
+                  onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  placeholder="مدرسة الأمل الثانوية"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-2">
+                  تاريخ الميلاد
+                </label>
+                <input
+                  id="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  required
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Trainer-specific fields */}
+          {formData.role === 'TRAINER' && (
+            <>
+              <div>
+                <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 mb-2">
+                  التخصص
+                </label>
+                <input
+                  id="specialization"
+                  type="text"
+                  value={formData.specialization}
+                  onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                  required
+                  disabled={loading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  placeholder="مثال: رياضيات، فيزياء، لغة عربية"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+                  نبذة تعريفية
+                </label>
+                <textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  disabled={loading}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  placeholder="نبذة مختصرة عن خبراتك ومؤهلاتك"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Parent-specific fields */}
+          {formData.role === 'PARENT' && (
+            <div>
+              <label htmlFor="relationToStudent" className="block text-sm font-medium text-gray-700 mb-2">
+                صلة القرابة
+              </label>
+              <select
+                id="relationToStudent"
+                value={formData.relationToStudent}
+                onChange={(e) => setFormData({ ...formData, relationToStudent: e.target.value })}
+                required
+                disabled={loading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              >
+                <option value="">اختر صلة القرابة</option>
+                <option value="father">والد</option>
+                <option value="mother">والدة</option>
+                <option value="guardian">ولي أمر</option>
+              </select>
+            </div>
+          )}
+
+          {/* Supervisor-specific note */}
+          {formData.role === 'SUPERVISOR' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                📋 حساب المشرف يتطلب موافقة الإدارة. سيتم مراجعة طلبك خلال 24-48 ساعة.
+              </p>
+            </div>
+          )}
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
               Account Type

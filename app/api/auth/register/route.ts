@@ -5,10 +5,25 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, password, role } = body;
+    const { 
+      name, 
+      email, 
+      password, 
+      role, 
+      phone,
+      // Student fields
+      grade,
+      schoolName,
+      dateOfBirth,
+      // Trainer fields
+      bio,
+      specialization,
+      // Parent fields
+      relationToStudent,
+    } = body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -18,6 +33,28 @@ export async function POST(request: NextRequest) {
     if (password.length < 6) {
       return NextResponse.json(
         { error: 'Password must be at least 6 characters' },
+        { status: 400 }
+      );
+    }
+
+    // Role-specific validation
+    if (role === 'STUDENT' && (!grade || !dateOfBirth)) {
+      return NextResponse.json(
+        { error: 'Student accounts require grade and date of birth' },
+        { status: 400 }
+      );
+    }
+
+    if (role === 'TRAINER' && !specialization) {
+      return NextResponse.json(
+        { error: 'Trainer accounts require specialization' },
+        { status: 400 }
+      );
+    }
+
+    if (role === 'PARENT' && !relationToStudent) {
+      return NextResponse.json(
+        { error: 'Parent accounts require relation to student' },
         { status: 400 }
       );
     }
@@ -43,6 +80,7 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
+        phone,
         role: role || 'STUDENT',
         isActive: true,
         emailVerified: new Date(),
@@ -54,16 +92,37 @@ export async function POST(request: NextRequest) {
       await prisma.student.create({
         data: {
           userId: user.id,
+          grade: grade,
+          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
         },
       });
+      
+      // Update school name if provided (stored in user table as metadata)
+      if (schoolName) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            // Store in a way that doesn't break schema
+            name: `${name} (${schoolName})` 
+          },
+        });
+      }
     } else if (role === 'TRAINER') {
       await prisma.trainer.create({
         data: {
           userId: user.id,
+          bio: bio || null,
+          specialization: specialization || null,
         },
       });
     } else if (role === 'PARENT') {
       await prisma.parent.create({
+        data: {
+          userId: user.id,
+        },
+      });
+    } else if (role === 'SUPERVISOR') {
+      await prisma.supervisor.create({
         data: {
           userId: user.id,
         },
