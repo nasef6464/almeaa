@@ -1,65 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/db';
-import bcrypt from 'bcryptjs';
+import { signIn } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
+    console.log('🔐 API Login attempt for:', email);
+
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'البريد الإلكتروني وكلمة المرور مطلوبان' },
+        { error: 'Email and password are required', success: false },
         { status: 400 }
       );
     }
 
-    // البحث عن المستخدم في قاعدة البيانات
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        trainer: true,
-        student: true,
-        parent: true,
-        schoolAdmin: true,
-        supervisor: true,
-      }
-    });
+    // Use NextAuth signIn server-side
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (!user) {
+      console.log('📊 SignIn result:', result);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Login successful'
+      });
+    } catch (authError: any) {
+      console.error('❌ Auth error:', authError);
       return NextResponse.json(
-        { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
+        { error: authError.message || 'Invalid credentials', success: false },
         { status: 401 }
       );
     }
-
-    // التحقق من كلمة المرور
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
-        { status: 401 }
-      );
-    }
-
-    // إرجاع بيانات المستخدم (بدون كلمة المرور)
-    const { password: _, ...userWithoutPassword } = user;
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: userWithoutPassword.id,
-        email: userWithoutPassword.email,
-        name: userWithoutPassword.name,
-        role: userWithoutPassword.role,
-        avatar: userWithoutPassword.avatar,
-      }
-    });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('💥 Login API error:', error);
     return NextResponse.json(
-      { error: 'حدث خطأ أثناء تسجيل الدخول' },
+      { error: 'An error occurred during login', success: false },
       { status: 500 }
     );
   }

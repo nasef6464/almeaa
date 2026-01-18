@@ -70,7 +70,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isStudent = role === 'STUDENT';
   
   // Get user avatar (use default if not set)
-  const userAvatar = session.user.image || session.user.avatar || '/images/default-avatar.png';
+  const userAvatar = (session.user as any).avatar || '/images/default-avatar.png';
   const userName = session.user.name || 'مستخدم';
   const userEmail = session.user.email || '';
 

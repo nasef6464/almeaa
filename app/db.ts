@@ -39,6 +39,14 @@ if (process.env.NODE_ENV === 'production') {
   // In development, reuse existing instance
   if (!globalForPrisma.prisma) {
     const connectionString = process.env.DATABASE_URL || '';
+    
+    if (!connectionString) {
+      console.error('❌ DATABASE_URL is not set!');
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    
+    console.log('🔌 Connecting to database:', connectionString.substring(0, 30) + '...');
+    
     const pool = new Pool({ 
       connectionString,
       ssl: {
@@ -47,6 +55,8 @@ if (process.env.NODE_ENV === 'production') {
     });
     const adapter = new PrismaPg(pool);
     globalForPrisma.prisma = new PrismaClient({ adapter });
+    
+    console.log('✅ Prisma Client created successfully');
   }
   prisma = globalForPrisma.prisma;
 }
